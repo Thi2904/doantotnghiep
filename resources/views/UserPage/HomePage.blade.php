@@ -52,7 +52,7 @@
             <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
             <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
             <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Phụ kiện</a>
+            <a href="/showProduct" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Sản phẩm</a>
             <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Giới thiệu</a>
         </nav>
 
@@ -133,7 +133,6 @@
                 <a href="{{route('showProduct')}}" class="block bg-white text-orange-500 px-6 py-3 rounded-full font-medium hover:bg-gray-100 transition">
                     Mua ngay
                 </a>
-                <button class="border-2 border-white px-6 py-3 rounded-full font-medium hover:bg-white hover:text-orange-500 transition">Khám phá</button>
             </div>
         </div>
         <div class="md:w-1/2 flex justify-center">
@@ -148,7 +147,7 @@
         <h2 class="text-3xl font-bold text-center mb-12">Danh mục sản phẩm</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
             @foreach($categories as $category )
-                <a href="#" class="group relative overflow-hidden rounded-xl h-48">
+                <a href="/products/category/{{$category->categoryID}}" class="group relative overflow-hidden rounded-xl h-48">
                     <img src="{{asset('storage/' . $category->categoryImage)}}" alt="{{ $category->categoryName }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                     <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center group-hover:bg-opacity-40 transition">
                         <h3 class="text-white text-xl font-bold">{{ $category->categoryName }}</h3>
@@ -172,20 +171,25 @@
             @foreach($products as $product)
             <div class="bg-white rounded-xl overflow-hidden shadow-md product-card transition duration-300">
                 <div class="relative">
-                    <img src="{{ asset('storage/' . $product->firstImage->imageLink) }}" alt="{{$product->productName}}" class="w-full h-64 object-cover">
+                    <a href="{{ route('productDetails', ['product' => $product->productID]) }}">
+                        <img src="{{ asset('storage/' . $product->firstImage->imageLink) }}" alt="{{$product->productName}}" class="w-full h-64 object-cover">
+                    </a>
                     <div class="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">Mới</div>
                 </div>
                 <div class="p-4">
-                    <h3 class="font-semibold text-lg mb-1">{{$product->productName}}</h3>
+                    <a href="{{ route('productDetails', ['product' => $product->productID]) }}">
+                        <h3 class="font-semibold text-lg mb-1">{{$product->productName}}</h3>
+                    </a>
                     <div class="flex items-center mb-2">
                         <div class="flex text-yellow-400">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
+                            @for ($i = 0; $i < number_format($product->average_star) ; $i++)
+                                <i class="fas fa-star text-warning"></i>
+                            @endfor
+                            @for ($i = number_format($product->average_star); $i < 5; $i++)
+                                <i class="far fa-star text-muted"></i>
+                            @endfor
                         </div>
-{{--                        <span class="text-gray-500 text-sm ml-2">(24 đánh giá)</span>--}}
+                        <span class="text-gray-500 text-sm ml-2">({{$product->quantityComment}} đánh giá)</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-orange-500 font-bold">{{number_format($product->productSellPrice, 0, ',', '.')}}đ</span>
@@ -195,24 +199,6 @@
             </div>
             @endforeach
            </div>
-    </div>
-</section>
-
-<!-- Banner -->
-<section class="py-12">
-    <div class="container mx-auto px-4">
-        <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-8 md:p-12 text-white">
-            <div class="flex flex-col md:flex-row items-center">
-                <div class="md:w-1/2 mb-6 md:mb-0">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Giảm giá lên đến 50%</h2>
-                    <p class="text-lg mb-6">Chương trình khuyến mãi đặc biệt dành cho khách hàng mới. Áp dụng đến hết ngày 30/11.</p>
-                    <button class="bg-white text-purple-600 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition">Mua ngay</button>
-                </div>
-                <div class="md:w-1/2 flex justify-center">
-                    <img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=688&q=80" alt="Sale" class="rounded-lg w-full max-w-md">
-                </div>
-            </div>
-        </div>
     </div>
 </section>
 
@@ -237,9 +223,13 @@
                 <!-- Slide 1 -->
                 <div class="min-w-full md:min-w-1/2 lg:min-w-1/3 xl:min-w-1/4 px-2">
                     <div class="bg-gray-50 rounded-xl overflow-hidden shadow-sm">
-                        <img src="{{ asset('storage/' . $product->firstImage->imageLink) }}" alt="Áo hoodie" class="w-full h-64 object-cover">
+                        <a href="{{ route('productDetails', ['product' => $product->productID]) }}">
+                            <img src="{{ asset('storage/' . $product->firstImage->imageLink) }}" alt="Áo hoodie" class="w-full h-64 object-cover">
+                        </a>
                         <div class="p-4">
-                            <h3 class="font-semibold mb-2">{{$product->productName}}</h3>
+                            <a style="text-decoration: none; color: black" href="{{ route('productDetails', ['product' => $product->productID]) }}">
+                                <h3 class="font-semibold mb-2">{{$product->productName}}</h3>
+                            </a>
                             <div class="flex justify-between items-center">
                                 <span class="text-orange-500 font-bold">{{number_format($product->productSellPrice, 0, ',', '.')}}đ</span>
                             </div>
@@ -257,62 +247,28 @@
 <section class="py-12 bg-gray-50">
     <div class="container mx-auto px-4">
         <h2 class="text-3xl font-bold text-center mb-12">Khách hàng nói gì về chúng tôi</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Testimonial 1 -->
-            <div class="bg-white p-6 rounded-xl shadow-sm">
-                <div class="flex items-center mb-4">
-                    <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Khách hàng" class="w-12 h-12 rounded-full object-cover">
-                    <div class="ml-4">
-                        <h4 class="font-semibold">Ngọc Anh</h4>
-                        <div class="flex text-yellow-400 text-sm">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                @forelse($comments as $comment)
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex items-center mb-4">
+                            <div class="ml-4">
+                                <h4 class="font-semibold">{{$comment->user->name}}</h4>
+                                <div class="flex text-yellow-400 text-sm">
+                                    @for ($i = 0; $i < number_format($comment->rate) ; $i++)
+                                        <i class="fas fa-star text-warning"></i>
+                                    @endfor
+                                    @for ($i = number_format($comment->rate); $i < 5; $i++)
+                                        <i class="far fa-star text-muted"></i>
+                                    @endfor
+                                </div>
+                            </div>
                         </div>
+                        <p class="text-gray-600 ml-4">{{$comment->contentComment}}</p>
                     </div>
-                </div>
-                <p class="text-gray-600">"Mình rất thích phong cách của TrendyTeen, chất lượng áo tốt, mặc rất thoải mái. Sẽ ủng hộ shop dài dài!"</p>
+                @empty
+                @endforelse
             </div>
 
-            <!-- Testimonial 2 -->
-            <div class="bg-white p-6 rounded-xl shadow-sm">
-                <div class="flex items-center mb-4">
-                    <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Khách hàng" class="w-12 h-12 rounded-full object-cover">
-                    <div class="ml-4">
-                        <h4 class="font-semibold">Tuấn Anh</h4>
-                        <div class="flex text-yellow-400 text-sm">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                        </div>
-                    </div>
-                </div>
-                <p class="text-gray-600">"Quần jeans của shop đẹp và chất lượng hơn mình tưởng. Nhân viên tư vấn nhiệt tình, giao hàng nhanh."</p>
-            </div>
-
-            <!-- Testimonial 3 -->
-            <div class="bg-white p-6 rounded-xl shadow-sm">
-                <div class="flex items-center mb-4">
-                    <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Khách hàng" class="w-12 h-12 rounded-full object-cover">
-                    <div class="ml-4">
-                        <h4 class="font-semibold">Minh Châu</h4>
-                        <div class="flex text-yellow-400 text-sm">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                        </div>
-                    </div>
-                </div>
-                <p class="text-gray-600">"Áo khoác denim đẹp quá, mặc lên trông rất cá tính. Giá cả hợp lý so với chất lượng. Sẽ quay lại mua tiếp!"</p>
-            </div>
-        </div>
     </div>
 </section>
 

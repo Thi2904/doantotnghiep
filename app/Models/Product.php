@@ -32,6 +32,10 @@ class Product extends Model
     {
         return $this->hasMany(ProductImage::class, 'prdID', 'productID');
     }
+    public function comments()
+    {
+        return $this->hasMany(CommentAndRate::class, 'productID', 'productID');
+    }
     public function firstImage()
     {
         return $this->hasOne(ProductImage::class, 'prdID', 'productID')->orderBy('imageID');

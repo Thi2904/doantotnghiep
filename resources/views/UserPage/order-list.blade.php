@@ -204,37 +204,6 @@
         <p class="text-gray-600">Quản lý và theo dõi tất cả đơn hàng của bạn</p>
     </div>
 
-    <!-- Filters and Search -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-        <div class="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
-            <!-- Status Filters -->
-            <div class="flex flex-wrap gap-2">
-                <button class="filter-tab active px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700">
-                    Tất cả
-                </button>
-                <button class="filter-tab px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-orange-500 hover:text-white">
-                    Chờ xác nhận
-                </button>
-                <button class="filter-tab px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-orange-500 hover:text-white">
-                    Đang xử lý
-                </button>
-                <button class="filter-tab px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-orange-500 hover:text-white">
-                    Đang giao
-                </button>
-                <button class="filter-tab px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-orange-500 hover:text-white">
-                    Đã giao
-                </button>
-            </div>
-
-            <!-- Search and Sort -->
-            <div class="flex gap-3 w-full lg:w-auto">
-                <div class="search-box">
-                    <input type="text" placeholder="Tìm kiếm đơn hàng..." class="search_content">
-                    <i class="fas fa-search search-icon"></i>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Orders List -->
     <div class="space-y-6">
@@ -249,6 +218,11 @@
                                 <p class="text-sm text-gray-500">Đặt ngày: {{ $order['orderDate'] }}</p>
                             </div>
                             <span class="status-badge {{ $order['statusClass'] }}">{{ $order['status'] }}</span>
+                            @if($order['payStatus'])
+                                <span class="status-badge status-delivered">Đã thanh toán</span>
+                            @else
+                                <span class="status-badge status-pending">Chưa thanh toán</span>
+                            @endif
                         </div>
                         <div class="text-right">
                             <p class="text-lg font-bold text-orange-500">{{ $order['totalPrice'] }}</p>
@@ -277,14 +251,34 @@
                             Dự kiến giao: {{ $order['expectedDelivery'] }}
                         </div>
                         <div class="flex gap-2">
-                            <button class="px-4 py-2 text-orange-500 border border-orange-500 rounded-lg hover:bg-orange-50 text-sm font-medium">
-                                <a  href="/order-details{{$order['orderID']}}">
+
+                            <button class=" text-orange-500 border border-orange-500 rounded-lg hover:bg-orange-50 text-sm font-medium">
+                                <a style="display:block" class="px-4 py-2" href="/order-details{{$order['orderID']}}">
                                     Xem chi tiết
                                 </a>
                             </button>
-                            <button class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm font-medium">
-                                Theo dõi đơn hàng
-                            </button>
+                            @if($order['status'] == 'Đang giao hàng')
+                                <form action="{{route('orders.delivered', $order['orderID'])}}" method="POST">
+                                    @csrf
+                                    <button class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm font-medium">
+                                        Đã nhận hàng
+                                    </button>
+                                </form>
+                            @elseif($order['status'] == 'Đang chờ duyệt' || $order['status'] == 'Đã duyệt')
+                                <form method="POST" action="{{ route('orderCus.cancel', $order['orderID']) }}" onsubmit="return confirm('Bạn có chắc muốn hủy đơn này?')">
+                                    @csrf
+                                    <button class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm font-medium">
+                                        Hủy đơn hàng
+                                    </button>
+                                </form>
+                            @elseif($order['status'] == 'Đã giao hàng')
+                                <form>
+                                @csrf
+                                <button class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm font-medium">
+                                    Bình luận và đánh giá
+                                </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>

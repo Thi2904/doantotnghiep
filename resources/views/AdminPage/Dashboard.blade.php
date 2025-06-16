@@ -76,15 +76,11 @@
                 <i class="fa-solid fa-box"></i>
                 <span>Sản Phẩm</span>
             </a>
-            <a href="#orders" class="sidebar-link" data-section="orders">
-                <i class="fa-solid fa-palette"></i>
-                <span>Màu Sản Phẩm</span>
-            </a>
             <a href="{{route('customer.index')}}" class="sidebar-link" data-section="customers">
                 <i class="fa-regular fa-user"></i>
                 <span>Khách Hàng</span>
             </a>
-            <a href="#settings" class="sidebar-link" data-section="settings">
+            <a href="{{route('discount_programs.index')}}" class="sidebar-link" data-section="settings">
                 <i class="fa-solid fa-tags"></i>
                 <span>Chương Trình Giảm Giá</span>
             </a>
@@ -113,59 +109,64 @@
 
             <!-- Stats Cards -->
             <div class="stats-grid">
+                <!-- Doanh thu -->
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-title">Doanh Thu</span>
                         <i data-lucide="dollar-sign" class="stat-icon"></i>
                     </div>
                     <div class="stat-content">
-                        <div class="stat-value">120.350.000đ</div>
-                        <div class="stat-change positive">
-                            <i data-lucide="arrow-up-right"></i>
-                            <span>20.5% so với tháng trước</span>
+                        <div class="stat-value">{{ number_format($currentRevenue, 0, ',', '.') }}đ</div>
+                        <div class="stat-change {{ $revenueChange >= 0 ? 'positive' : 'negative' }}">
+                            <i data-lucide="{{ $revenueChange >= 0 ? 'arrow-up-right' : 'arrow-down-right' }}"></i>
+                            <span>{{ round(abs($revenueChange), 1) }}% so với tháng trước</span>
                         </div>
                     </div>
                 </div>
 
+                <!-- Đơn hàng -->
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-title">Đơn Hàng</span>
                         <i data-lucide="credit-card" class="stat-icon"></i>
                     </div>
                     <div class="stat-content">
-                        <div class="stat-value">+573</div>
-                        <div class="stat-change positive">
-                            <i data-lucide="arrow-up-right"></i>
-                            <span>12.2% so với tháng trước</span>
+                        <div class="stat-value">+{{ $currentOrders }}</div>
+                        <div class="stat-change {{ $orderChange >= 0 ? 'positive' : 'negative' }}">
+                            <i data-lucide="{{ $orderChange >= 0 ? 'arrow-up-right' : 'arrow-down-right' }}"></i>
+                            <span>{{ round(abs($orderChange), 1) }}% so với tháng trước</span>
                         </div>
                     </div>
                 </div>
 
+                <!-- Sản phẩm -->
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-title">Sản Phẩm</span>
                         <i data-lucide="package" class="stat-icon"></i>
                     </div>
                     <div class="stat-content">
-                        <div class="stat-value">248</div>
-                        <div class="stat-description">24 sản phẩm mới trong tháng này</div>
+                        <div class="stat-value">{{ $totalProducts }}</div>
+                        <div class="stat-description">{{ $newProducts }} sản phẩm mới trong tháng này</div>
                     </div>
                 </div>
 
+                <!-- Khách hàng -->
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-title">Khách Hàng</span>
                         <i data-lucide="users" class="stat-icon"></i>
                     </div>
                     <div class="stat-content">
-                        <div class="stat-value">+2,350</div>
-                        <div class="stat-change positive">
-                            <i data-lucide="arrow-up-right"></i>
-                            <span>18.1% so với tháng trước</span>
+                        <div class="stat-value">+{{ $totalCustomers }}</div>
+                        <div class="stat-change {{ $customerChange >= 0 ? 'positive' : 'negative' }}">
+                            <i data-lucide="{{ $customerChange >= 0 ? 'arrow-up-right' : 'arrow-down-right' }}"></i>
+                            <span>{{ round(abs($customerChange), 1) }}% so với tháng trước</span>
                         </div>
                     </div>
                 </div>
             </div>
+
 
             <!-- Dashboard Content Grid -->
             <div class="dashboard-grid">
@@ -177,33 +178,20 @@
                     </div>
                     <div class="card-content">
                         <div class="product-list">
-                            <div class="product-item">
-                                <img src="https://via.placeholder.com/48" alt="Product" class="product-image">
-                                <div class="product-info">
-                                    <p class="product-name">Áo Polo Nam Premium</p>
-                                    <p class="product-meta">SKU: #AP-1234 | Đã bán: 245</p>
+                            @foreach ($topProducts as $product)
+                                <div class="product-item">
+                                    <img src="{{ asset('storage/' . $product->firstImage->imageLink) }}" alt="Product" class="product-image">
+                                    <div class="product-info">
+                                        <p class="product-name">{{ $product->productName }}</p>
+                                        <p class="product-meta">SKU: #{{ $product->productCode }} | Đã bán: {{ $product->total_sold }}</p>
+                                    </div>
+                                    <div class="product-price">{{ number_format($product->productSellPrice, 0, ',', '.') }}đ</div>
                                 </div>
-                                <div class="product-price">650.000đ</div>
-                            </div>
-                            <div class="product-item">
-                                <img src="https://via.placeholder.com/48" alt="Product" class="product-image">
-                                <div class="product-info">
-                                    <p class="product-name">Áo Sơ Mi Linen Cao Cấp</p>
-                                    <p class="product-meta">SKU: #AS-5678 | Đã bán: 198</p>
-                                </div>
-                                <div class="product-price">750.000đ</div>
-                            </div>
-                            <div class="product-item">
-                                <img src="https://via.placeholder.com/48" alt="Product" class="product-image">
-                                <div class="product-info">
-                                    <p class="product-name">Quần Jeans Slim Fit</p>
-                                    <p class="product-meta">SKU: #QJ-9012 | Đã bán: 187</p>
-                                </div>
-                                <div class="product-price">850.000đ</div>
-                            </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
+
 
                 <!-- Recent Orders -->
                 <div class="dashboard-card">
@@ -213,39 +201,24 @@
                     </div>
                     <div class="card-content">
                         <div class="order-list">
-                            <div class="order-item">
-                                <div class="order-info">
-                                    <p class="order-id">Đơn #ORD-5592</p>
-                                    <p class="order-customer">Nguyễn Văn A</p>
+                            @foreach ($recentOrders as $order)
+                                <div class="order-item">
+                                    <div class="order-info">
+                                        <p class="order-id">Đơn #ORD-{{ $order->orderID }}</p>
+                                        <p class="order-customer">{{ $order->customer->name ?? 'N/A' }}</p>
+                                    </div>
+                                    <div class="order-details">
+                        <span class="order-status {{ strtolower(str_replace(' ', '-', $order->status->statusName)) }}">
+                            {{ $order->status->statusName }}
+                        </span>
+                                        <p class="order-amount">{{ number_format($order->totalPrice, 0, ',', '.') }}đ</p>
+                                    </div>
                                 </div>
-                                <div class="order-details">
-                                    <span class="order-status delivered">Đã giao</span>
-                                    <p class="order-amount">1.250.000đ</p>
-                                </div>
-                            </div>
-                            <div class="order-item">
-                                <div class="order-info">
-                                    <p class="order-id">Đơn #ORD-5591</p>
-                                    <p class="order-customer">Trần Thị B</p>
-                                </div>
-                                <div class="order-details">
-                                    <span class="order-status shipping">Đang giao</span>
-                                    <p class="order-amount">850.000đ</p>
-                                </div>
-                            </div>
-                            <div class="order-item">
-                                <div class="order-info">
-                                    <p class="order-id">Đơn #ORD-5590</p>
-                                    <p class="order-customer">Lê Văn C</p>
-                                </div>
-                                <div class="order-details">
-                                    <span class="order-status processing">Đang xử lý</span>
-                                    <p class="order-amount">2.150.000đ</p>
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
+
             </div>
         </section>
     </main>

@@ -18,7 +18,7 @@ class CategoriesController extends Controller
             $query->where('categoryName', 'LIKE', "%$search%");
         }
 
-        $categories = $query->paginate(3);
+        $categories = $query->paginate(10);
         $total= $query->count();
 
         return view('AdminPage.Categories', compact('categories', 'search','total'));

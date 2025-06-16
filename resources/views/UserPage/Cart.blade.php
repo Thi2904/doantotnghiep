@@ -262,25 +262,44 @@
                             <span class="text-gray-600">Giảm giá</span>
                             <span class="text-gray-800 font-medium" id="discount">0đ</span>
                         </div>
+
+                        <!-- Select mã giảm giá -->
+                        <div class="pt-4">
+                            <div class="relative">
+                                <select id="discount-select" class="custom-select w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none">
+                                    <option value="">Chọn mã giảm giá</option>
+                                    @forelse ($programs as $program)
+                                        <option value="{{ $program->id }}">{{ $program->name }}</option>
+                                    @empty
+                                        <option disabled value="empty">Hiện tại không có mã giảm giá nào</option>
+                                    @endforelse
+                                </select>
+                            </div>
+                        </div>
+
                         <div class="flex justify-between">
                             <span class="text-gray-800 font-bold">Tổng cộng</span>
                             <span class="text-orange-500 font-bold text-xl" id="total">{{ number_format($total, 0, ',', '.') }}đ</span>
                         </div>
 
+                        <!-- Form thanh toán -->
                         <form id="checkout-form" action="{{ route('checkout.index') }}" method="GET">
                             @csrf
                             <input type="hidden" name="cart_data" id="checkout-items">
+                            <input type="hidden" name="discount_code" id="selected-discount">
                             <button id="checkout-button" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-md flex items-center justify-center">
                                 <i class="fas fa-credit-card mr-2"></i>
                                 Tiến hành thanh toán
                             </button>
                         </form>
+
                         <div class="flex items-center justify-center text-gray-500 text-sm mt-4">
                             <i class="fas fa-lock mr-2"></i>
                             Thanh toán an toàn & bảo mật
                         </div>
 
                         <div class="flex justify-center space-x-4 mt-4">
+                            <!-- Logo các cổng thanh toán -->
                             <img src="https://imgs.search.brave.com/UA6WKl3ATFm4YMsu5hACT8a8dQXvgjpdOm8TOSA1dYA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWdz/LnNlYXJjaC5icmF2/ZS5jb20vdTBnMnFO/N0RhUi1HNWZxNk83/WEgzVE90NzkyS3VI/RUZVTVdRVi10Slc2/OC9yczpmaXQ6NTAw/OjA6MDowL2c6Y2Uv/YUhSMGNITTZMeTkx/YzJFdS9kbWx6WVM1/amIyMHZaR0Z0L0wx/WkRUMDB2Y21WbmFX/OXUvWVd3dmJtRXZk/WE12WTI5dC9iVzl1/TFdGemMyVjBjeTlq/L1lYSmtjeTkyYVhO/aExYUnkvWVdScGRH/bHZibUZzTFdOaC9j/bVF0T0RBd2VEUTFN/QzVxL2NHYw" alt="Visa" class="h-6">
                             <img src="https://imgs.search.brave.com/s3McoP9gfN7d-RHT2qFQz_XxwYqX9gw4GJNdCP5uhso/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWdz/LnNlYXJjaC5icmF2/ZS5jb20vX3hvRU5p/N3dZSmZYZVJ0bjU0/MjlybDdSZFhyaGdU/ajRTMGtqaXNtclgy/MC9yczpmaXQ6NTAw/OjA6MDowL2c6Y2Uv/YUhSMGNITTZMeTlz/YjJkdi9MVzFoY25G/MVpTNWpiMjB2L2Qz/QXRZMjl1ZEdWdWRD/OTEvY0d4dllXUnpM/ekl3TWpBdi9NRFF2/VUdGNVVHRnNMVXh2/L1oyOHROalV3ZURN/Mk5pNXcvYm1j" alt="Mastercard" class="h-6">
                             <img src="https://imgs.search.brave.com/f0EpIz0f_Y1ePQdO21b5INxC8aRvkGiAw9IzQsmDQzk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWdz/LnNlYXJjaC5icmF2/ZS5jb20vQ2YzV0Rm/WUVJeE90YkI1SFRj/aWUwS2t3TGxFcEd5/N1lYU2ZMMjJTRk1I/TS9yczpmaXQ6NTAw/OjA6MDowL2c6Y2Uv/YUhSMGNITTZMeTlw/YldGbi9aWE11YzJW/bGEyeHZaMjh1L1ky/OXRMMnh2WjI4dGNH/NW4vTHpReUx6RXZk/bTV3WVhrdC9iRzlu/Ynkxd2JtZGZjMlZs/L2EyeHZaMjh0TkRJ/NE1EQTIvTG5CdVp3" alt="PayPal" class="h-6">
@@ -288,6 +307,9 @@
                         </div>
                     </div>
                 </div>
+
+
+
             </div>
 
         </div>
@@ -354,10 +376,7 @@
         <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center">
             <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2023 TrendyTeen. All rights reserved.</p>
             <div class="flex space-x-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
+
             </div>
         </div>
     </div>
@@ -375,6 +394,39 @@
         return parseInt(priceString.replace(/\D/g, ''));
     }
 
+    document.addEventListener('DOMContentLoaded', function () {
+        const select = document.querySelector('.custom-select');
+        const subtotalElement = document.getElementById('subtotal');
+        const discountElement = document.getElementById('discount');
+        const totalElement = document.getElementById('total');
+
+        select.addEventListener('change', function () {
+            const programId = this.value;
+
+            if (!programId) return;
+
+            const subtotalText = subtotalElement.textContent.replace(/[^\d]/g, '');
+            const subtotal = parseInt(subtotalText);
+
+            fetch(`/discount/${programId}?total=${subtotal}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.discount !== undefined) {
+                        const discount = Math.round(data.discount);
+                        const newTotal = subtotal + 30000 - discount;
+
+                        discountElement.textContent = discount.toLocaleString('vi-VN') + 'đ';
+                        totalElement.textContent = newTotal.toLocaleString('vi-VN') + 'đ';
+                    } else {
+                        alert(data.error || 'Không thể áp dụng mã giảm giá.');
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert('Đã xảy ra lỗi khi áp dụng mã giảm giá.');
+                });
+        });
+    });
     // Cập nhật tổng giá của từng sản phẩm
     function updateItemTotal(itemId) {
         const quantityInput = document.querySelector(`.quantity-input[data-item="${itemId}"]`);
@@ -386,6 +438,7 @@
 
         updateCartTotals();
     }
+
 
     // Cập nhật tổng giỏ hàng, chỉ tính những sản phẩm đã được chọn (checkbox)
     function updateCartTotals() {
@@ -497,6 +550,10 @@
             alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
             return;
         }
+
+        const discountSelect = document.getElementById("discount-select");
+        const selectedDiscountId = discountSelect.value;
+        document.getElementById("selected-discount").value = selectedDiscountId;
 
         // Gán dữ liệu vào input ẩn dưới dạng JSON
         document.getElementById('checkout-items').value = JSON.stringify(selectedItems);

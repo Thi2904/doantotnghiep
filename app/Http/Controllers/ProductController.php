@@ -16,7 +16,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-
+        $search = request()->get('search');
 
         $query = Product::with(['firstImage', 'category'])
             ->where('isDeleted', 0)
@@ -31,7 +31,7 @@ class ProductController extends Controller
             });
         }
 
-        $products = $query->paginate(4)->appends(['search' => $search]);
+        $products = $query->paginate(10)->appends(['search' => $search]);
         $total = $query->count();
         $categories = Category::where('isDeleted', false)->get();
         $sizes = Size::where('isDeleted', false)->get();
@@ -62,6 +62,14 @@ class ProductController extends Controller
             $data['productCode'] = Product::generateProductCode('QJ');
         }elseif (Str::lower($category->categoryName) === 'quần đùi'){
             $data['productCode'] = Product::generateProductCode('QD');
+        }elseif (Str::lower($category->categoryName) === 'áo hoodie'){
+            $data['productCode'] = Product::generateProductCode('AH');
+        }elseif (Str::lower($category->categoryName) === 'áo gile'){
+            $data['productCode'] = Product::generateProductCode('AG');
+        }elseif (Str::lower($category->categoryName) === 'quần âu'){
+            $data['productCode'] = Product::generateProductCode('QAU');
+        }else{
+            $data['productCode'] = Product::generateProductCode('PRD');
         }
 
         Product::create($data);

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('shipping_district')->nullable();
             $table->string('shipping_city')->nullable();
             $table->decimal('totalPrice', 12, 2)->default(0);
+            $table->boolean('isPayment')->default(false);
             $table->timestamps();
             $table->foreign('cusID')->references('id')->on('users');
             $table->foreign('payID')->references('paymentID')->on('payments');

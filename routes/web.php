@@ -1,8 +1,12 @@
 <?php
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CommentAndRateController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DiscountProgramController;
 use App\Http\Controllers\DisplayProductController;
 use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\OrdersManageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductDetailController;
 use App\Http\Controllers\ProductImageController;
@@ -16,9 +20,7 @@ Route::post('/register',[\App\Http\Controllers\LoginController::class,'register'
 Route::post('/logout', [\App\Http\Controllers\LoginController::class,'logout'])->name('logout');
 
 Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/admin', function () {
-        return view('AdminPage.Dashboard');
-    })->name('adminDashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('adminDashboard');
 
     Route::resource('categories', \App\Http\Controllers\CategoriesController::class);
 
@@ -26,7 +28,19 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::resource('customer', \App\Http\Controllers\CustomerAccountController::class);
 
+    Route::resource('discount_programs', DiscountProgramController::class);
     Route::resource('order-manage', \App\Http\Controllers\OrdersManageController::class);
+
+    //    Status Change
+    Route::post('/orders/{id}/approve', [OrdersManageController::class, 'approve'])->name('orders.approve');
+    Route::post('/orders/{id}/deliver', [OrdersManageController::class, 'deliver'])->name('orders.deliver');
+    Route::post('/orders/{id}/cancel', [OrdersManageController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/orders/{id}', [OrdersManageController::class, 'showDetails'])->name('orders.details');
+    Route::post('/orderDetails/{id}', [OrdersManageController::class, 'addMoreDetails'])->name('ordersDetails.add');
+    Route::get('/orders-filter', [OrdersManageController::class, 'filterOrders']);
+    // Bo loc
+    Route::get('/admin/get-sizes/{productID}', [OrdersManageController::class, 'getSizes']);
+    Route::get('/admin/get-colors/{productID}/{sizeId}', [OrdersManageController::class, 'getColors']);
 
 //    Link Product Details
 
@@ -48,6 +62,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::put('/product-images/{image}', [ProductImageController::class, 'update'])->name('product-images.update');
 
+    Route::get('admin/vnpay_return', [OrdersManageController::class, 'vnpayReturn'])->name('vnpay.adminReturn');
 
 
 });
@@ -79,6 +94,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/orders', [OrdersController::class, 'storeFromCustomer'])->name('orders.storeFromCustomer');
     Route::get('/order-list', [OrdersController::class, 'showOrders'])->name('orders.showOrders');
     Route::get('/order-details{order}', [OrdersController::class, 'showDetails'])->name('orders.showDetails');
+    Route::post('/orderDelivered/{id}/', [OrdersController::class, 'delivered'])->name('orders.delivered');
+    Route::post('/ordersCus/{id}/cancel', [OrdersController::class, 'cancel'])->name('orderCus.cancel');
 
+    Route::get('/vnpay_return', [OrdersController::class, 'vnpayReturn'])->name('vnpay.return');
+    Route::get('/discount/{id}', [App\Http\Controllers\CartController::class, 'getDiscount']);
+
+    Route::post('/comments', [CommentAndRateController::class, 'store']);
+    Route::put('/comments/{id}', [CommentAndRateController::class, 'update']);
+    Route::delete('/comments/{id}', [CommentAndRateController::class, 'destroy']);
 });
 

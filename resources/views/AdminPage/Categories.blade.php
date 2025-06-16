@@ -62,11 +62,11 @@
 <div class="main-layout">
     <aside class="sidebar">
         <nav class="sidebar-nav">
-            <a href="{{route('adminDashboard')}}" class="sidebar-link active" data-section="dashboard">
+            <a href="{{route('adminDashboard')}}" class="sidebar-link " data-section="dashboard">
                 <i class="fa-solid fa-chart-line"></i>
                 <span>Tổng Quan</span>
             </a>
-            <a href="{{route('categories.index')}}" class="sidebar-link" data-section="products">
+            <a href="{{route('categories.index')}}" class="sidebar-link active" data-section="products">
                 <i class="fa-regular fa-rectangle-list"></i>
                 <span>Danh Mục Sản Phẩm</span>
             </a>
@@ -74,19 +74,15 @@
                 <i class="fa-solid fa-box"></i>
                 <span>Sản Phẩm</span>
             </a>
-            <a href="#orders" class="sidebar-link" data-section="orders">
-                <i class="fa-solid fa-palette"></i>
-                <span>Màu Sản Phẩm</span>
-            </a>
             <a href="{{route('customer.index')}}" class="sidebar-link" data-section="customers">
                 <i class="fa-regular fa-user"></i>
                 <span>Khách Hàng</span>
             </a>
-            <a href="#settings" class="sidebar-link" data-section="settings">
+            <a href="{{route('discount_programs.index')}}" class="sidebar-link" data-section="settings">
                 <i class="fa-solid fa-tags"></i>
                 <span>Chương Trình Giảm Giá</span>
             </a>
-            <a href="{{route('order-manage.index')}}" class="sidebar-link active" data-section="orders">
+            <a href="{{route('order-manage.index')}}" class="sidebar-link" data-section="orders">
                 <i class="fa-solid fa-receipt"></i>
                 <span>Đơn Hàng</span>
             </a>

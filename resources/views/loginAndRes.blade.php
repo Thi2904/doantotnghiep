@@ -63,34 +63,34 @@
         <div class="form-box login">
             <form action="/login" method="POST">
                 @csrf
-                <h1>Login</h1>
+                <h1>Đăng nhập</h1>
                 <div class="input-box">
-                    <input name="username" type="text" placeholder="Username" required>
+                    <input name="username" type="text" placeholder="Tên đăng nhập" required>
                     <i class='bx bxs-user'></i>
                 </div>
                 <div class="input-box">
-                    <input name="password" type="password" placeholder="Password" required>
-                    <i class='bx bxs-lock-alt' ></i>
+                    <input name="password" type="password" placeholder="Mật khẩu" required>
+                    <i class='bx bxs-lock-alt'></i>
                 </div>
                 <div class="forgot-link">
-                    <a href="">Forgot Password</a>
+                    <a href="">Quên mật khẩu?</a>
                 </div>
-                <button type="submit" class="btn">Login</button>
-                <p>or login with social platforms</p>
+                <button type="submit" class="btn">Đăng nhập</button>
+                <p>hoặc đăng nhập bằng mạng xã hội</p>
                 <div class="social-icons">
-                    <a href=""><i class='bx bxl-google' ></i></a>
-                    <a href=""><i class='bx bxl-facebook' ></i></a>
-                    <a href=""><i class='bx bxl-github' ></i></a>
-                    <a href=""><i class='bx bxl-linkedin' ></i></a>
+                    <a href=""><i class='bx bxl-google'></i></a>
+                    <a href=""><i class='bx bxl-facebook'></i></a>
+                    <a href=""><i class='bx bxl-github'></i></a>
+                    <a href=""><i class='bx bxl-linkedin'></i></a>
                 </div>
             </form>
         </div>
         <div class="form-box register">
             <form id="registerForm" action="{{route('register')}}" method="POST" onsubmit="return validatePassword()">
                 @csrf
-                <h1>Registration</h1>
+                <h1>Đăng ký</h1>
                 <div class="input-box">
-                    <input name="username" type="text" placeholder="Username" required >
+                    <input name="username" type="text" placeholder="Tên đăng nhập" required>
                     <i class='bx bxs-user'></i>
                 </div>
                 <div class="input-box">
@@ -98,11 +98,11 @@
                     <i class='bx bxl-gmail'></i>
                 </div>
                 <div class="input-box">
-                    <input name="password" type="password" id="password" placeholder="Password" required>
+                    <input name="password" type="password" id="password" placeholder="Mật khẩu" required>
                     <i class='bx bxs-lock-alt'></i>
                 </div>
                 <div class="input-box">
-                    <input type="password" name="password_confirmation" id="confirmPassword" placeholder="Confirm password" required>
+                    <input type="password" name="password_confirmation" id="confirmPassword" placeholder="Xác nhận mật khẩu" required>
                     <i class='bx bxs-lock-alt'></i>
                 </div>
 
@@ -112,8 +112,8 @@
                     <span id="message-text"></span>
                 </div>
 
-                <button type="submit" class="btn">Register</button>
-                <p>or register with social platforms</p>
+                <button type="submit" class="btn">Đăng ký</button>
+                <p>hoặc đăng ký bằng mạng xã hội</p>
                 <div class="social-icons">
                     <a href=""><i class='bx bxl-google'></i></a>
                     <a href=""><i class='bx bxl-facebook'></i></a>
@@ -123,20 +123,20 @@
             </form>
         </div>
 
-
         <div class="toggle-box">
             <div class="toggle-panel toggle-left">
-                <h1>Hello, Welcome</h1>
-                <p>Don't have an account</p>
-                <button class="btn register-btn">Register</button>
+                <h3>Xin chào, Chào mừng bạn</h3>
+                <p>Chưa có tài khoản?</p>
+                <button class="btn register-btn">Đăng ký</button>
             </div>
             <div class="toggle-panel toggle-right">
-                <h1>Welcome Back</h1>
-                <p>Already have an account</p>
-                <button class="btn login-btn">Login</button>
+                <h3>Chào mừng trở lại</h3>
+                <p>Đã có tài khoản?</p>
+                <button class="btn login-btn">Đăng nhập</button>
             </div>
         </div>
     </div>
+
     <script src="{{asset('js/login.js')}}"></script>
     <script>
         function isStrongPassword(password) {

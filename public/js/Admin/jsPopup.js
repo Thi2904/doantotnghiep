@@ -69,3 +69,24 @@ function closeImageUploadForm(productID) {
 }
 
 
+let currentForm = null;
+
+document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', function () {
+        currentForm = this.closest('form');
+        document.getElementById('deleteModal').style.display = 'flex';
+    });
+});
+
+function closeModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    currentForm = null;
+}
+
+document.getElementById('confirmDelete').addEventListener('click', function () {
+    if (currentForm) {
+        currentForm.submit();
+    }
+});
+
+

@@ -13,10 +13,7 @@ class MethodSeeder extends Seeder
             "payMethod" => "Thanh toán khi nhận hàng (COD)",
         ]);
         DB::table("payments")->insert([
-            "payMethod" => "QR Pay",
-        ]);
-        DB::table("payments")->insert([
-            "payMethod" => "Ví MoMo",
+            "payMethod" => "Thanh toán bằng VN Pay",
         ]);
     }
 }

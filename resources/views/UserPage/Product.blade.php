@@ -168,31 +168,6 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-md p-5 mb-6">
-                <h3 class="text-lg font-semibold mb-4 text-gray-800">Từ khóa</h3>
-                <div class="space-y-2">
-                    <div class="flex items-center">
-                        <input type="checkbox" id="keyword1" class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded">
-                        <label for="keyword1" class="ml-2 text-gray-700">Quần bò</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="keyword2" class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded">
-                        <label for="keyword2" class="ml-2 text-gray-700">Quần tây</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="keyword3" class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded">
-                        <label for="keyword3" class="ml-2 text-gray-700">Quần short</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="keyword4" class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded">
-                        <label for="keyword4" class="ml-2 text-gray-700">Quần kaki</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="keyword5" class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded">
-                        <label for="keyword5" class="ml-2 text-gray-700">Quần jogger</label>
-                    </div>
-                </div>
-            </div>
 
             <div class="bg-white rounded-lg shadow-md p-5">
                 <h3 class="text-lg font-semibold mb-4 text-gray-800">Đánh giá</h3>
@@ -274,12 +249,16 @@
                         </div>
                         <div class="p-4">
                             <div class="flex text-amber-400 mb-1">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
+                                @for ($i = 0; $i < number_format($product->average_star) ; $i++)
+                                    <i class="fas fa-star text-warning"></i>
+                                @endfor
+                                @for ($i = number_format($product->average_star); $i < 5; $i++)
+                                    <i class="far fa-star text-muted"></i>
+                                @endfor
+                                <span class="text-gray-500 text-sm ml-2">({{$product->quantityComment}} đánh giá)</span>
+
                             </div>
+
                             <h3 class="text-gray-800 font-medium mb-2">
                                 <a href="{{ route('productDetails', ['product' => $product->productID]) }}" class="hover:text-orange-500">{{$product->productName}}</a>
                             </h3>

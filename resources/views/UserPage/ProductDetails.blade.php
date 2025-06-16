@@ -267,10 +267,6 @@
                         </button>
                     </div>
                 </form>
-
-                <button class="flex-1 border border-orange-500 text-orange-500 hover:bg-orange-50 font-medium py-3 px-6 rounded-md flex items-center justify-center gap-2 transition-colors">
-                        Mua ngay
-                </button>
                 <br>
 
                 <!-- Features -->
@@ -314,134 +310,120 @@
                 <button class="tab-btn active inline-block py-4 px-6 border-b-2 border-orange-500 text-orange-500 font-medium" data-tab="description">
                     Mô tả sản phẩm
                 </button>
-                <button class="tab-btn inline-block py-4 px-6 text-gray-500 hover:text-gray-700 font-medium" data-tab="reviews">
-                    Đánh giá (120)
-                </button>
-                <button class="tab-btn inline-block py-4 px-6 text-gray-500 hover:text-gray-700 font-medium" data-tab="guide">
-                    Hướng dẫn mua hàng
-                </button>
             </div>
         </div>
-
         <div id="description-tab" class="tab-content prose max-w-none">
-            <p>
-                Áo thun unisex cotton oversize form rộng với chất liệu 100% cotton cao cấp, mềm mại, thấm hút mồ hôi tốt.
-                Thiết kế đơn giản, hiện đại phù hợp với mọi phong cách.
-            </p>
-            <p>
-                Áo thun unisex cotton oversize form rộng là một item không thể thiếu trong tủ đồ của bạn. Với thiết kế đơn
-                giản nhưng không kém phần thời trang, áo thun unisex cotton oversize form rộng sẽ giúp bạn có được vẻ ngoài
-                trẻ trung, năng động và cá tính.
-            </p>
-            <h3>Thông tin chi tiết:</h3>
-            <ul>
-                <li>Chất liệu: 100% cotton cao cấp, mềm mại, thấm hút mồ hôi tốt</li>
-                <li>Form: Oversize rộng rãi, thoải mái</li>
-                <li>Họa tiết: In cao cấp, bền màu</li>
-                <li>Xuất xứ: Việt Nam</li>
-                <li>Màu sắc: Đen, Trắng, Xanh Navy</li>
-                <li>Size: S, M, L, XL, XXL</li>
-            </ul>
-            <h3>Hướng dẫn bảo quản:</h3>
-            <ul>
-                <li>Giặt máy ở nhiệt độ thường</li>
-                <li>Không sử dụng chất tẩy</li>
-                <li>Không sấy khô</li>
-                <li>Ủi ở nhiệt độ thấp</li>
-                <li>Giặt với sản phẩm cùng màu</li>
-            </ul>
-        </div>
-
-        <div id="reviews-tab" class="tab-content hidden">
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-4">Đánh giá từ khách hàng</h3>
-                <div class="flex items-center mb-4">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                            <i class="fas fa-user text-gray-500"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <h4 class="text-sm font-medium text-gray-900">Nguyễn Văn A</h4>
-                        <div class="flex text-amber-400 mt-1">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <p class="mt-1 text-sm text-gray-600">
-                            Sản phẩm rất tốt, chất liệu vải mềm, form rộng thoải mái. Đóng gói cẩn thận, giao hàng nhanh.
-                        </p>
-                    </div>
-                </div>
-                <div class="flex items-center mb-4">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                            <i class="fas fa-user text-gray-500"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <h4 class="text-sm font-medium text-gray-900">Trần Thị B</h4>
-                        <div class="flex text-amber-400 mt-1">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                        </div>
-                        <p class="mt-1 text-sm text-gray-600">
-                            Áo đẹp, đúng như mô tả. Tuy nhiên size hơi rộng so với mong đợi.
-                        </p>
-                    </div>
-                </div>
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                            <i class="fas fa-user text-gray-500"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <h4 class="text-sm font-medium text-gray-900">Lê Văn C</h4>
-                        <div class="flex text-amber-400 mt-1">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                        </div>
-                        <p class="mt-1 text-sm text-gray-600">
-                            Chất lượng tốt, giá cả hợp lý. Sẽ mua lại lần sau.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <button class="w-full py-2 border border-orange-500 text-orange-500 hover:bg-orange-50 font-medium rounded-md">
-                Xem thêm đánh giá
-            </button>
-        </div>
-
-        <div id="guide-tab" class="tab-content hidden prose max-w-none">
-            <h3>Hướng dẫn mua hàng</h3>
-            <p>Để mua hàng tại TrendyTeen, bạn có thể thực hiện theo các bước sau:</p>
-            <ol>
-                <li>Chọn sản phẩm bạn muốn mua</li>
-                <li>Chọn size, màu sắc và số lượng</li>
-                <li>Nhấn nút "Thêm vào giỏ hàng" hoặc "Mua ngay"</li>
-                <li>Nếu bạn chọn "Thêm vào giỏ hàng", bạn có thể tiếp tục mua sắm hoặc vào giỏ hàng để thanh toán</li>
-                <li>Nếu bạn chọn "Mua ngay", bạn sẽ được chuyển đến trang thanh toán</li>
-                <li>Nhập thông tin giao hàng và chọn phương thức thanh toán</li>
-                <li>Xác nhận đơn hàng</li>
-            </ol>
-            <h3>Chính sách đổi trả</h3>
-            <p>TrendyTeen cam kết đảm bảo quyền lợi của khách hàng với chính sách đổi trả như sau:</p>
-            <ul>
-                <li>Thời gian đổi trả: trong vòng 7 ngày kể từ khi nhận hàng</li>
-                <li>Điều kiện đổi trả: sản phẩm còn nguyên tem mác, chưa qua sử dụng, giặt ủi</li>
-                <li>Không áp dụng đổi trả với sản phẩm mua trong chương trình khuyến mãi</li>
-            </ul>
+            <p>{{$product->productDesc}}</p>
         </div>
     </div>
+    <div class="bg-white rounded-lg shadow-md p-6 mt-8">
+        <div id="reviews-tab" class="tab-content">
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-4">Đánh giá từ khách hàng</h3>
+                @forelse($comments as $comment)
+                <div class="flex items-center mb-4">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                            <i class="fas fa-user text-gray-500"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-sm font-medium text-gray-900">{{$comment->user->name}}</h4>
+                        <div class="flex text-amber-400 mt-1">
+                            @for ($i = 0; $i < $comment->rate; $i++)
+                                <i class="fas fa-star text-warning"></i>
+                            @endfor
+                            @for ($i = $comment->rate; $i < 5; $i++)
+                                <i class="far fa-star text-muted"></i>
+                            @endfor
+                        </div>
+                        <p class="mt-1 text-sm text-gray-600">
+                            {{$comment->contentComment}}
+                        </p>
+                    </div>
+                </div>
+                @empty
+                    Sản phẩm hiện tại chưa có bình luận nào
+                @endforelse
+            </div>
+        </div>
+    </div>
+    @if($hasPurchased)
+        <div class="bg-white rounded-lg shadow-md p-6 mt-8">
+
+            <div class="bg-white rounded-lg shadow-sm border">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-6">Viết đánh giá của bạn</h3>
+
+                    <form class="space-y-6" action="/comments" METHOD="POST">
+                        @csrf
+                        <!-- Star Rating Input -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Đánh giá của bạn <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex items-center space-x-1">
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="1">
+                                    <i class="fa-solid fa-star"></i>
+                                </button>
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="2">
+                                    <i class="fa-solid fa-star"></i>
+                                </button>
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="3">
+                                    <i class="fa-solid fa-star"></i>
+                                </button>
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="4">
+                                    <i class="fa-solid fa-star"></i>
+                                </button>
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="5">
+                                    <i class="fa-solid fa-star"></i>
+                                </button>
+                                <span class="ml-3 text-sm text-gray-500" id="rating-text">Chọn số sao</span>
+                            </div>
+                            <input type="hidden" id="rating-value" name="rate" value="0">
+                        </div>
+
+                        <!-- Comment Input -->
+                        <div>
+                            <label for="review-comment" class="block text-sm font-medium text-gray-700 mb-2">
+                                Nội dung đánh giá <span class="text-red-500">*</span>
+                            </label>
+                            <textarea
+                                id="review-comment"
+                                name="contentComment"
+                                rows="5"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 resize-none"
+                                placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."
+                                required
+                            ></textarea>
+                            <input type="hidden" name="productID" value="{{$product->productID}}">
+                            <div class="mt-2 text-right">
+                                <span class="text-xs text-gray-500" id="char-count">0/500 ký tự</span>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="flex items-center justify-between pt-4">
+                            <div class="text-sm text-gray-500">
+                                <i class="fa-solid fa-info-circle mr-1"></i>
+                                Đánh giá của bạn sẽ được kiểm duyệt trước khi hiển thị
+                            </div>
+                            <button
+                                type="submit"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-lg transition-colors duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                id="submit-review"
+                            >
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Gửi đánh giá</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
 
     <!-- Related Products -->
     <div class="mt-12">
@@ -697,6 +679,7 @@
     });
 </script>
 <script src="{{asset('js/Customer/Sidebar.js')}}"></script>
+<script src="{{asset('js/Customer/commentAndRate.js')}}"></script>
 
 </body>
 </html>

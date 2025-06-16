@@ -74,19 +74,15 @@
                 <i class="fa-solid fa-box"></i>
                 <span>Sản Phẩm</span>
             </a>
-            <a href="#orders" class="sidebar-link" data-section="orders">
-                <i class="fa-solid fa-palette"></i>
-                <span>Màu Sản Phẩm</span>
-            </a>
             <a href="{{route('customer.index')}}" class="sidebar-link" data-section="customers">
                 <i class="fa-regular fa-user"></i>
                 <span>Khách Hàng</span>
             </a>
-            <a href="#settings" class="sidebar-link" data-section="settings">
+            <a href="{{route('discount_programs.index')}}" class="sidebar-link " data-section="settings">
                 <i class="fa-solid fa-tags"></i>
                 <span>Chương Trình Giảm Giá</span>
             </a>
-            <a href="#settings" class="sidebar-link" data-section="settings">
+            <a href="{{route('order-manage.index')}}" class="sidebar-link " data-section="orders">
                 <i class="fa-solid fa-receipt"></i>
                 <span>Đơn Hàng</span>
             </a>
@@ -223,7 +219,7 @@
                             </div>
                         <div class="form-overlay image-upload-overlay" id="imageUploadFormOverlay-{{ $product->productID }}" style="display: none;">
                             <div class="form-container" style="height: 200px">
-                                <h2>Thêm hình sản sản phẩm</h2>
+                                <h2>Thêm hình ảnh sản phẩm</h2>
                                 <form action="{{ route('product-images.upload', $product->productID) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <div class="form-group">

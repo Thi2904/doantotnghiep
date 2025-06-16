@@ -550,7 +550,7 @@ body {
 }
 
 .table-wrapper {
-    overflow-x: auto;
+    /*overflow-x: auto;*/
 }
 
 .data-table {
@@ -1058,3 +1058,201 @@ input:checked + .slider:before {
 .status-da-huy { background: #f8d7da; color: #721c24; }
 .status-dang-cho-duyet { background: #fff3cd; color: #856404; }
 .status-dang-giao-hang { background: #e2d9f3; color: #5f3dc4; }
+
+
+/* Container các nút */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Nút tròn cơ bản */
+.circle-button {
+    text-decoration: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 10%;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+/* Duyệt đơn (màu xanh lá) */
+.circle-button.approve {
+    background-color: #4CAF50;
+}
+.circle-button.approve:hover {
+    background-color: #45A049;
+}
+
+/* Giao đơn (màu xanh dương) */
+.circle-button.deliver {
+    background-color: #2196F3;
+}
+.circle-button.deliver:hover {
+    background-color: #1976D2;
+}
+
+/* Hủy đơn (màu đỏ) */
+.circle-button.cancel {
+    background-color: #f44336;
+}
+.circle-button.cancel:hover {
+    background-color: #d32f2f;
+}
+.circle-button.disabled {
+    background-color: #e5e7eb; /* màu xám nhạt */
+    color: #9ca3af; /* màu icon nhạt */
+    cursor: not-allowed;
+    pointer-events: none; /* vô hiệu hóa hành vi click */
+    opacity: 1;
+}
+
+.custom-select-search-wrapper {
+    position: relative;
+    width: 100%; /* Adjust as needed */
+}
+
+.styled-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Ensures padding doesn't add to total width */
+}
+
+.suggestions-list {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-top: none;
+    background-color: white;
+    z-index: 1000; /* Ensure it appears above other content */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: none; /* Hidden by default */
+}
+
+.suggestions-list .suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestions-list .suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestions-list .suggestion-item:hover,
+.suggestions-list .suggestion-item.highlighted {
+    background-color: #f0f0f0;
+}
+
+.add-detail-form-btn {
+    margin-top: 15px;
+    background-color: #28a745; /* Màu xanh lá cây */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block; /* Để nút nằm ở dòng mới */
+    width: fit-content;
+}
+.add-detail-form-btn:hover {
+    background-color: #218838;
+}
+
+.product-detail-form-group {
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    background-color: #fcfcfc;
+}
+.product-detail-form-group .submit-btn {
+    margin-right: 10px; /* Khoảng cách giữa Cập nhật và Xóa */
+}
+.remove-detail-form-btn {
+    background-color: #dc3545; /* Màu đỏ */
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.remove-detail-form-btn:hover {
+    background-color: #c82333;
+}
+.filter-tabs {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-tabs h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text-color);
+}
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 25px;
+    background: var(--background);
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.filter-btn:hover {
+    border-color: var(--primary-color);
+    background: var(--secondary-color);
+}
+
+.filter-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.filter-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.filter-btn.active .filter-count {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.filter-btn:not(.active) .filter-count {
+    background: var(--secondary-color);
+    color: var(--text-muted);
+}

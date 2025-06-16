@@ -126,6 +126,76 @@
             z-index: 1;
             transition: width 0.5s ease;
         }
+         .order-card {
+             transition: all 0.3s ease;
+         }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-confirmed {
+            background-color: #dbeafe;
+            color: #2563eb;
+        }
+
+        .status-processing {
+            background-color: #e0e7ff;
+            color: #7c3aed;
+        }
+
+        .status-shipping {
+            background-color: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .status-delivered {
+            background-color: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-cancelled {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        .filter-tab {
+            transition: all 0.3s ease;
+        }
+
+        .filter-tab.active {
+            background-color: #f97316;
+            color: white;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding-left: 40px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-r from-amber-50 to-orange-50">
@@ -199,8 +269,6 @@
             </div>
 
 
-
-
         </div>
     </div>
 </header>
@@ -216,19 +284,28 @@
 
     <!-- Order Status Banner -->
     <div class="bg-white p-6 rounded-lg border shadow-sm mb-8">
+
         @php
-            $steps = ['Đặt hàng', 'Đang chờ duyệt', 'Đã duyệt', 'Đang giao', 'Đã giao'];
-            $currentStatus = $order->status->statusValue ?? '';
+            $steps = ['Đặt hàng', 'Đang chờ duyệt', 'Đã duyệt', 'Đang giao hàng', 'Đã giao hàng'];
+            $cancel = ['Đã hủy'];
+
+            $currentStatus = $order->status->statusValue ?? 'Đang chờ duyệt';
+            $isCancelled = in_array($currentStatus, $cancel);
+
             $currentStepIndex = array_search($currentStatus, $steps);
-            $progressPercent = $currentStepIndex !== false ? ($currentStepIndex / (count($steps) - 1)) * 100 : 0;
+            $currentStepIndex = $currentStepIndex !== false ? $currentStepIndex : 0;
+            $progressPercent = ($currentStepIndex / (count($steps) - 1)) * 100;
         @endphp
 
             <!-- Order Progress Bar -->
         <div class="relative flex items-center justify-between mb-6">
             <!-- Progress line -->
-            <div class="absolute top-1/2 left-0 w-full h-1 bg-gray-200 transform -translate-y-1/2 z-0 rounded-full"></div>
-            <div class="absolute top-1/2 left-0 h-1 bg-green-500 z-10 rounded-full"
-                 style="width: {{ $progressPercent }}%; transform: translateY(-50%);"></div>
+            <div class="absolute top-1/2 left-0 w-full h-1 {{ $isCancelled ? 'bg-gray-400' : 'bg-gray-200' }} transform -translate-y-1/2 z-0 rounded-full"></div>
+
+            <div class="absolute top-1/2 left-0 h-1 z-10 rounded-full
+        {{ $isCancelled ? 'bg-gray-500' : 'bg-green-500' }}"
+                 style="width: {{ $isCancelled ? '100%' : $progressPercent . '%' }}; transform: translateY(-50%);">
+            </div>
 
             @foreach ($steps as $index => $step)
                 @php
@@ -238,8 +315,18 @@
 
                 <div class="relative z-20 flex flex-col items-center w-1/5 text-center">
                     <div class="w-8 h-8 flex items-center justify-center rounded-full
-                {{ $isCompleted ? 'bg-green-500 text-white' : ($isCurrent ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-600') }}">
-                        @if($isCompleted)
+                @if($isCancelled)
+                    bg-gray-400 text-white
+                @elseif($isCompleted)
+                    bg-green-500 text-white
+                @elseif($isCurrent)
+                    bg-blue-500 text-white
+                @else
+                    bg-gray-300 text-gray-600
+                @endif">
+                        @if($isCancelled)
+                            <i class="fas fa-times text-sm"></i>
+                        @elseif($isCompleted)
                             <i class="fas fa-check text-sm"></i>
                         @elseif($isCurrent)
                             <i class="fas fa-spinner fa-spin text-sm"></i>
@@ -247,14 +334,19 @@
                             <i class="fas fa-circle text-xs"></i>
                         @endif
                     </div>
-                    <div class="mt-2 text-xs text-gray-700">{{ $step }}</div>
+                    <div class="mt-2 text-xs {{ $isCancelled ? 'text-gray-500' : 'text-gray-700' }}">{{ $step }}</div>
                 </div>
             @endforeach
         </div>
 
 
+
         <div class="text-sm text-gray-500 text-center">
-            Đơn hàng của bạn đang được chuẩn bị và sẽ được giao trong 3-5 ngày tới
+            @if($order->status->statusValue == 'Đã hủy')
+                Đơn hàng của bạn đã hủy
+            @else
+                Đơn hàng của bạn đang được chuẩn bị và sẽ được giao trong 3-5 ngày tới
+            @endif
         </div>
     </div>
 
@@ -324,6 +416,15 @@
                                 <p class="text-sm text-gray-500">Dự kiến giao: 18/06/2023 - 20/06/2023</p>
                             </div>
                         </div>
+                        @if($order->shipping_code != null)
+                            <div class="flex items-center gap-3 p-3 rounded-lg">
+                                <div>
+                                    <p class="font-medium">Mã vận đơn</p>
+                                    <a href="https://spx.vn/track?{{$order->shipping_code}}">{{$order->shipping_code}}</a>
+                                </div>
+                            </div>
+                        @endif
+
                     </div>
                 </div>
             </div>
@@ -366,6 +467,20 @@
                             <i class="fas fa-money-bill-wave text-green-500"></i>
                             <div>
                                 <p class="font-medium">{{ $order->payment->payMethod ?? 'Chưa xác định' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t">
+                        <h3 class="font-medium mb-2">Trạng thái thanh toán</h3>
+                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-medium">
+                                    @if($order->isPayment)
+                                        <span class="status-badge status-delivered">Đã thanh toán</span>
+                                    @else
+                                        <span class="status-badge status-confirmed">Chưa thanh toán</span>
+                                    @endif
+                                </p>
                             </div>
                         </div>
                     </div>

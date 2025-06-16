@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DiscountProgram;
 use App\Models\ProductDetail;
 use Illuminate\Http\Request;
 use App\Models\Cart;
@@ -15,6 +16,7 @@ class CartController extends Controller
     {
         $user = Auth::user();
         $cart = Cart::firstOrCreate(['userID' => $user->id]);
+        $programs = DiscountProgram::getActivePrograms()->get();
 
         $cartDetails = $cart->cartDetails()
             ->with([
@@ -32,10 +34,20 @@ class CartController extends Controller
             $subtotal += $price * $quantity;
         }
 
-        $shippingFee = 30000;
-        $total = $subtotal + $shippingFee ;
+        if (!$programs->isEmpty()) {
+            foreach ($programs as $program) {
+                $discountAmount = $program->calculateDiscount($subtotal);
+                $finalPrice = $subtotal - $discountAmount;
+            }
+        } else {
+            $discountAmount = 0;
+            $finalPrice = $subtotal;
+        }
 
-        return view('UserPage.Cart', compact('cartDetails','total','shippingFee'));
+        $shippingFee = 30000;
+        $total = $finalPrice + $shippingFee ;
+
+        return view('UserPage.Cart', compact('cartDetails','total','shippingFee','programs','discountAmount'));
     }
 
 
@@ -70,7 +82,13 @@ class CartController extends Controller
                 'quantity' => $request->quantity,
             ]);
         }
-
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'cart_detail_id' => $cartDetail->id,
+                'quantity' => $cartDetail->quantity
+            ]);
+        }
         return redirect()->route('cart.index')->with('success', 'Đã thêm vào giỏ hàng');
     }
 
@@ -80,6 +98,23 @@ class CartController extends Controller
         $item->delete();
 
         return redirect()->back()->with('success', 'Đã xóa sản phẩm khỏi giỏ hàng');
+    }
+
+    public function getDiscount($id)
+    {
+        $program = DiscountProgram::find($id);
+
+        if (!$program || !$program->isActive()) {
+            return response()->json(['error' => 'Chương trình không hợp lệ hoặc đã hết hạn'], 400);
+        }
+
+        $originalPrice = request()->query('total'); // tổng đơn trước giảm giá
+
+        $discount = $program->calculateDiscount($originalPrice);
+
+        return response()->json([
+            'discount' => $discount
+        ]);
     }
 
 

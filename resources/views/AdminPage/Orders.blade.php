@@ -12,6 +12,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
     <title>CLOTHES | BKACAD</title>
 </head>
 
@@ -70,19 +71,15 @@
                 <i class="fa-regular fa-rectangle-list"></i>
                 <span>Danh Mục Sản Phẩm</span>
             </a>
-            <a href="{{route('products.index')}}" class="sidebar-link " data-section="products">
+            <a href="{{route('products.index')}}" class="sidebar-link" data-section="products">
                 <i class="fa-solid fa-box"></i>
                 <span>Sản Phẩm</span>
-            </a>
-            <a href="#orders" class="sidebar-link" data-section="orders">
-                <i class="fa-solid fa-palette"></i>
-                <span>Màu Sản Phẩm</span>
             </a>
             <a href="{{route('customer.index')}}" class="sidebar-link" data-section="customers">
                 <i class="fa-regular fa-user"></i>
                 <span>Khách Hàng</span>
             </a>
-            <a href="#settings" class="sidebar-link" data-section="settings">
+            <a href="{{route('discount_programs.index')}}" class="sidebar-link " data-section="settings">
                 <i class="fa-solid fa-tags"></i>
                 <span>Chương Trình Giảm Giá</span>
             </a>
@@ -113,56 +110,74 @@
                 <div id="formOverlay" >
                     <div class="form-container" style="top: -10%;">
                         <span onclick="closeForm()" class="close-btn">×</span>
-                        <form  id="productForm" action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
+                        <form id="productForm" action="{{route('order-manage.store')}}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="form-group">
                                 <label for="productName">Khách hàng:</label>
-                                <select name="cusID" required>
-                                    @foreach ($customers as $customer)
-                                        <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-                                    @endforeach
-                                </select>
+                                <input type="text" name="nameCus" placeholder="Tên khách hàng" required>
                             </div>
                             <div class="form-group">
                                 <label for="phone">Số điện thoại</label>
-                                <input type="number" id="phone" name="phone" placeholder="Số điện thoại" required>
+                                <input type="number" id="phoneCus" name="phone" placeholder="Số điện thoại" required>
                             </div>
                             <div class="form-group">
-                                <label for="productBuyPrice">Giá nhập</label>
-                                <input type="number" id="productBuyPrice" name="productBuyPrice" placeholder="Giá mua" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="productForGender">Chọn giới tính</label>
-                                <select name="productForGender" id="productForGender" class="styled-select">
-                                    <option value="0">Nam</option>
-                                    <option value="1">Nữ</option>
+                                <label for="payID">Chọn phương thức thanh toán</label>
+                                <select name="payID" id="payID" class="styled-select">
+                                    @foreach($payments as $payment)
+                                        <option value="{{ $payment->paymentID }}">{{ $payment->payMethod }}</option>
+                                    @endforeach
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label for="cateID">Chọn danh mục sản phẩm</label>
-                                <select name="cateID" id="cateID" class="styled-select">
-{{--                                    @foreach($categories as $category)--}}
-{{--                                        <option value="{{ $category->categoryID }}">{{ $category->categoryName }}</option>--}}
-{{--                                    @endforeach--}}
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="productDesc">Mô tả sản phẩm</label>
-                                <textarea id="productDesc" name="productDesc" placeholder="Description"></textarea>
-                            </div>
-
                             <button type="submit" class="submit-btn">Tạo</button>
                         </form>
                     </div>
                 </div>
             </div>
+            <div class="filter-tabs">
+                <h3>Lọc theo trạng thái đơn hàng</h3>
+                <div class="filter-buttons">
+                    <form id="filterForm" method="GET">
+                        <button class="filter-btn {{ request('statusID') == null ? 'active' : '' }}" name="statusID" value="">
+                            Tất cả
+                            <span class="filter-count" id="count-all">{{ $totalOrders }}</span>
+                        </button>
+
+                        <button class="filter-btn {{ request('statusID') == '1' ? 'active' : '' }}" name="statusID" value="1">
+                            Đang chờ duyệt
+                            <span class="filter-count">{{ $statusCounts[1] ?? 0 }}</span>
+                        </button>
+
+                        <button class="filter-btn {{ request('statusID') == '2' ? 'active' : '' }}" name="statusID" value="2">
+                            Đã duyệt
+                            <span class="filter-count">{{ $statusCounts[2] ?? 0 }}</span>
+                        </button>
+
+                        <button class="filter-btn {{ request('statusID') == '3' ? 'active' : '' }}" name="statusID" value="3">
+                            Đang giao hàng
+                            <span class="filter-count">{{ $statusCounts[3] ?? 0 }}</span>
+                        </button>
+
+                        <button class="filter-btn {{ request('statusID') == '4' ? 'active' : '' }}" name="statusID" value="4">
+                            Đã giao
+                            <span class="filter-count">{{ $statusCounts[4] ?? 0 }}</span>
+                        </button>
+
+                        <button class="filter-btn {{ request('statusID') == '5' ? 'active' : '' }}" name="statusID" value="5">
+                            Đã hủy
+                            <span class="filter-count">{{ $statusCounts[5] ?? 0 }}</span>
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+
 
             <div class="table-container">
                 <div class="table-header">
                     <div class="search-box">
                         <form method="GET" action="{{ route('order-manage.index') }}" style="margin-bottom: 16px;">
                             <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm sản phẩm..." id="product-search" />
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm theo mã đơn hàng..." id="product-search" />
                             <button type="submit" style="display: none"></button>
                         </form>
                     </div>
@@ -171,11 +186,12 @@
                     <table class="data-table" id="products-table">
                         <thead>
                         <tr>
-                            <th>Tên người mua</th>
+                            <th>Mã đơn hàng</th>
                             <th>Số điện thoại</th>
-                            <th>Tổng giá trị đơn hàng</th>
-                            <th>Trạng thái đơn hàng</th>
-                            <th>Thao tác</th>
+                            <th>Tổng giá trị</th>
+                            <th>Ngày tạo đơn</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
                         </tr>
                         </thead>
                         <tbody id="products-tbody">
@@ -205,90 +221,197 @@
                                         $colorClass = 'bg-gray-100 text-gray-800';
                                 }
                             @endphp
-{{--                            <div id="editFormOverlay-{{ $product->productID }}" class="form-overlay">--}}
-{{--                                <div class="form-container"  style="top: -10%;">--}}
-{{--                                    <span onclick="closeEditForm({{ $product->productID }})" class="close-btn">×</span>--}}
-{{--                                    <form action="{{ route('products.update', $product->productID) }}" method="POST" enctype="multipart/form-data">--}}
-{{--                                        @csrf--}}
-{{--                                        @method('PUT')--}}
-{{--                                        <div class="form-group">--}}
-{{--                                            <label for="editProductName">Tên sản phẩm</label>--}}
-{{--                                            <input type="text" id="editProductName" name="productName" value="{{ $product->productName }}" required>--}}
-{{--                                        </div>--}}
-{{--                                        <div class="form-group">--}}
-{{--                                            <label for="editProductSellPrice">Giá bán</label>--}}
-{{--                                            <input type="number" id="editProductSellPrice" name="productSellPrice" value="{{ $product->productSellPrice }}" />--}}
-{{--                                        </div>--}}
-{{--                                        <div class="form-group">--}}
-{{--                                            <label for="editProductBuyPrice">Giá nhập</label>--}}
-{{--                                            <input type="number" id="editProductBuyPrice" name="productBuyPrice" value="{{ $product->productBuyPrice }}" />--}}
-{{--                                        </div>--}}
-{{--                                        <div class="form-group">--}}
-{{--                                            <label for="editProductForGender">Chọn giới tính</label>--}}
-{{--                                            <select name="productForGender" id="editProductForGender" class="styled-select">--}}
-{{--                                                <option value="0" {{ $product->productForGender == 0 ? 'selected' : '' }}>Nam</option>--}}
-{{--                                                <option value="1" {{ $product->productForGender == 1 ? 'selected' : '' }}>Nữ</option>--}}
-{{--                                            </select>--}}
-{{--                                        </div>--}}
-{{--                                        <div class="form-group">--}}
-{{--                                            <label for="editCateID">Chọn danh mục sản phẩm</label>--}}
-{{--                                            <select name="cateID" id="editCateID" class="styled-select">--}}
-{{--                                                @foreach($categories as $category)--}}
-{{--                                                    <option value="{{ $category->categoryID }}"--}}
-{{--                                                        {{ $category->categoryID == $product->cateID ? 'selected' : '' }}>--}}
-{{--                                                        {{ $category->categoryName }}--}}
-{{--                                                    </option>--}}
-{{--                                                @endforeach--}}
-{{--                                            </select>--}}
-{{--                                        </div>--}}
-{{--                                        <div class="form-group">--}}
-{{--                                            <label for="productDesc">Mô tả sản phẩm</label>--}}
-{{--                                            <textarea id="productDesc" name="productDesc" placeholder="Description">{{$product->productDesc}}</textarea>--}}
-{{--                                        </div>--}}
 
-{{--                                        <button type="submit" class="submit-btn edit-submit-btn">Cập nhật</button>--}}
-{{--                                    </form>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
 
                             <tr>
                                 <td>
                                     <div class="cell-product">
-                                        <h4 style="max-width: 200px"  >
-                                            <a style="text-decoration: none; color: black" onmouseover="this.style.color='blue';"  onmouseout="this.style.color='black';"  href="">
-                                                {{$order->customer->name}}
-                                            </a>
-                                        </h4>
+                                        <div style="position: relative;">
+                                            <h4 style="max-width: 200px; display: inline-block;">
+                                                <a style="text-decoration: none; color: black"
+                                                   onmouseover="this.style.color='blue';"
+                                                   onmouseout="this.style.color='black';"
+                                                   href="orders/{{$order->orderID}}">
+                                                    {{$order->orderID}}
+                                                </a>
+                                            </h4>
+                                            <button onclick="toggleDropdown('dropdown-{{$order->orderID}}')" style="border: none; background: transparent; cursor: pointer; margin-left: 5px;">
+                                                <i class="fas fa-chevron-down"></i>
+                                            </button>
+
+                                            <div id="dropdown-{{$order->orderID}}" class="dropdown-detail" style="display: none; position: absolute; z-index: 1000 !important; background: white; border: 1px solid #ccc; padding: 10px; width: 300px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+                                                @if($order->orderDetails->count() == 0)
+                                                    <p>
+                                                        Đơn hàng này hiện không có sản phẩm nào
+                                                    </p>
+                                                @endif
+                                                @foreach($order->orderDetails as $detail)
+                                                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                                        <img src="{{ asset('storage/' . $detail->productDetail->product->firstImage->imageLink) }}" alt="Ảnh sản phẩm" style="width: 60px; height: 60px; object-fit: cover; margin-right: 10px;">
+                                                        <div>
+                                                            <strong>{{ $detail->productDetail->product->productName }}</strong><br>
+                                                            SL: {{ $detail->orderQuantity}}<br>
+                                                            Giá: {{ number_format($detail->productDetail->product->productSellPrice, 0, ',', '.') }}đ
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </td>
-                                <td>{{$order->orderPhoneNumber}}</td>
+
+                                <td>{{ preg_replace('/(\d{4})(\d{3})(\d{3})/', '$1 $2 $3', $order->orderPhoneNumber) }}</td>
                                 <td>{{number_format($order->totalPrice, 0, ',', '.')}}đ</td>
+                                <td>{{$order->created_at->format('d/m/Y H:i')}}</td>
+
                                 <td>
                                     <span class="status-badge status-{{ Str::slug($status) }}">{{ $status }}</span>
                                 </td>
+                                <td class="text-center space-x-2">
+                                    @if($status == 'Đang chờ duyệt' && $order->orderDetails->count() == 0)
+                                        <div style="display: flex" class="">
+                                            <form style="margin-left: 5px;margin-right: 5px" method="POST" action="{{ route('orders.approve', $order->orderID) }}">
+                                                @csrf
+                                                <input type="hidden" name="cusID" value="{{ $order->cusID }}">
+                                                <button class="circle-button disabled" title="Duyệt đơn">
+                                                    <i class="fas fa-circle-check"></i>
+                                                </button>
+                                            </form>
 
-                                <td style="text-align: left;">
-                                    <button class="action-btn" onclick="showActionMenu(event)">
-                                        <i class="fa-solid fa-ellipsis"></i>
-                                    </button>
-                                    <div class="dropdown-menu" id="action-dropdown">
-                                        <button class="dropdown-item" onclick="openEditForm({{ $order->orderID }})" style="border: none; background: white; width: 100% ;text-align: left">
-                                            <span>Chỉnh sửa</span>
-                                        </button>
-                                        <hr>
-                                        <form
-{{--                                            action="{{ route('products.destroy', $product->productID) }}"--}}
-                                            method="POST"
-                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');"
-                                            class="delete-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="dropdown-item"  style="border: none; background: white; width: 100% ;text-align: left" title="Delete product">
-                                                <span style="color: red">Xóa</span>
+                                            <form style="margin-left: 5px;margin-right: 5px" method="POST" action="{{ route('orders.deliver', $order->orderID) }}">
+                                                @csrf
+                                                <input type="hidden" name="cusID" value="{{ $order->cusID }}">
+                                                <button class="circle-button deliver disabled" title="Giao đơn">
+                                                    <i class="fas fa-truck-fast"></i>
+                                                </button>
+                                            </form>
+
+                                            <form style="margin-left: 5px;margin-right: 5px" method="POST" action="{{ route('orders.cancel', $order->orderID) }}" onsubmit="return confirm('Bạn có chắc muốn hủy đơn này?')">
+                                                @csrf
+                                                <input type="hidden" name="cusID" value="{{ $order->cusID }}">
+                                                <button class="circle-button cancel" title="Hủy đơn">
+                                                    <i class="fas fa-circle-xmark"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @elseif($status == 'Đang chờ duyệt')
+                                        <div style="display: flex" class="">
+                                            <form style="margin-left: 5px;margin-right: 5px" method="POST" action="{{ route('orders.approve', $order->orderID) }}">
+                                                @csrf
+                                                <input type="hidden" name="cusID" value="{{ $order->cusID }}">
+                                                <button class="circle-button approve" title="Duyệt đơn">
+                                                    <i class="fas fa-circle-check"></i>
+                                                </button>
+                                            </form>
+
+                                            <button  class="circle-button deliver disabled" title="Giao đơn">
+                                                <i class="fas fa-truck-fast"></i>
                                             </button>
-                                        </form>
-                                    </div>
+
+
+
+                                            <form style="margin-left: 5px;margin-right: 5px" method="POST" action="{{ route('orders.cancel', $order->orderID) }}" onsubmit="return confirm('Bạn có chắc muốn hủy đơn này?')">
+                                                @csrf
+                                                <input type="hidden" name="cusID" value="{{ $order->cusID }}">
+                                                <button class="circle-button cancel" title="Hủy đơn">
+                                                    <i class="fas fa-circle-xmark"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @elseif($status == 'Đã duyệt')
+                                        <div style="display: flex" class="">
+                                            <form style="margin-left: 5px;margin-right: 5px" method="POST" action="{{ route('orders.approve', $order->orderID) }}">
+                                                @csrf
+                                                <input type="hidden" name="cusID" value="{{ $order->cusID }}">
+                                                <button class="circle-button disabled" title="Duyệt đơn">
+                                                    <i class="fas fa-circle-check"></i>
+                                                </button>
+                                            </form>
+
+                                            <button onclick="openImageUploadForm({{ $order->orderID }})" class="circle-button deliver" title="Giao đơn">
+                                                <i class="fas fa-truck-fast"></i>
+                                            </button>
+                                            <div class="form-overlay image-upload-overlay" id="imageUploadFormOverlay-{{ $order->orderID }}" style="display: none;">
+                                                <div class="form-container" style="height: 200px">
+                                                    <h2>Thêm mã vận đơn</h2>
+                                                    <form action="{{ route('orders.deliver', $order->orderID) }}" method="POST" enctype="multipart/form-data">
+                                                        @csrf
+                                                        <input type="hidden" name="cusID" value="{{ $order->cusID }}">
+
+                                                        <div class="form-group">
+                                                            <input type="text" name="shipping_code" required>
+                                                        </div>
+                                                        <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 15px;">
+                                                            <button type="submit" class="submit-btn">Tải lên</button>
+                                                            <button type="button" class="cancel-btn submit-btn" onclick="closeImageUploadForm({{ $order->orderID }})" style="background-color: #dc3545;">Hủy</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+
+                                            <form style="margin-left: 5px;margin-right: 5px" method="POST" action="{{ route('orders.cancel', $order->orderID) }}" onsubmit="return confirm('Bạn có chắc muốn hủy đơn này?')">
+                                                @csrf
+                                                <input type="hidden" name="cusID" value="{{ $order->cusID }}">
+                                                <button class="circle-button cancel" title="Hủy đơn">
+                                                    <i class="fas fa-circle-xmark"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @elseif($status == 'Đang giao hàng')
+                                        <div style="display: flex" class="">
+                                            <form style="margin-left: 5px;margin-right: 5px" method="POST" action="{{ route('orders.approve', $order->orderID) }}">
+                                                @csrf
+                                                <input type="hidden" name="cusID" value="{{ $order->cusID }}">
+                                                <button class="circle-button disabled" title="Duyệt đơn">
+                                                    <i class="fas fa-circle-check"></i>
+                                                </button>
+                                            </form>
+
+                                            <form style="margin-left: 5px;margin-right: 5px" method="POST" action="{{ route('orders.deliver', $order->orderID) }}">
+                                                @csrf
+                                                <input type="hidden" name="cusID" value="{{ $order->cusID }}">
+                                                <button class="circle-button disabled" title="Giao đơn">
+                                                    <i class="fas fa-truck-fast"></i>
+                                                </button>
+                                            </form>
+
+                                            <form style="margin-left: 5px;margin-right: 5px" method="POST" action="{{ route('orders.cancel', $order->orderID) }}" onsubmit="return confirm('Bạn có chắc muốn hủy đơn này?')">
+                                                @csrf
+                                                <input type="hidden" name="cusID" value="{{ $order->cusID }}">
+                                                <button class="circle-button disabled" title="Hủy đơn">
+                                                    <i class="fas fa-circle-xmark"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
                                 </td>
+
+
+{{--                                <td style="text-align: left;">--}}
+{{--                                    <button class="action-btn" onclick="showActionMenu(event)">--}}
+{{--                                        <i class="fa-solid fa-ellipsis"></i>--}}
+{{--                                    </button>--}}
+
+{{--                                    <div class="dropdown-menu" id="action-dropdown">--}}
+
+{{--                                        <button class="dropdown-item" onclick="openEditForm({{ $order->orderID }})" style="border: none; background: white; width: 100% ;text-align: left">--}}
+{{--                                            <span>Chỉnh sửa</span>--}}
+{{--                                        </button>--}}
+{{--                                        <hr>--}}
+{{--                                        <form--}}
+{{--                                            action="{{ route('products.destroy', $product->productID) }}"--}}
+{{--                                            method="POST"--}}
+{{--                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');"--}}
+{{--                                            class="delete-form">--}}
+{{--                                            @csrf--}}
+{{--                                            @method('DELETE')--}}
+{{--                                            <button type="submit" class="dropdown-item"  style="border: none; background: white; width: 100% ;text-align: left" title="Delete product">--}}
+{{--                                                <span style="color: red">Xóa</span>--}}
+{{--                                            </button>--}}
+{{--                                        </form>--}}
+{{--                                    </div>--}}
+{{--                                </td>--}}
                             </tr>
 
                         @empty
@@ -324,6 +447,17 @@
         </section>
     </div>
 </div>
+<script>
+    function toggleDropdown(id) {
+        var dropdown = document.getElementById(id);
+        if (dropdown.style.display === "none" || dropdown.style.display === "") {
+            dropdown.style.display = "block";
+        } else {
+            dropdown.style.display = "none";
+        }
+    }
+</script>
+
 
 <script src="{{asset('js/Admin/jsPopup.js')}}"></script>
 <script src="{{asset('js/Admin/script.js')}}"></script>
