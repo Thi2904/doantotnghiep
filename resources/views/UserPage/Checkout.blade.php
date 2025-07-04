@@ -84,19 +84,18 @@
         </div>
 
         <nav class="hidden md:flex space-x-8">
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Phụ kiện</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Giới thiệu</a>
+            <a href="/" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
+            <a href="/products/gender/0" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
+            <a href="/products/gender/1" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
+            <a href="/showProduct" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Sản phẩm</a>
         </nav>
 
         <div class="flex items-center space-x-4">
             <div class="flex search">
                 <div class="">
-                    <form action="">
+                    <form action="/showProduct">
                         <div class="search-box">
-                            <input placeholder="Search something" class="search_content" type="text">
+                            <input name="search" placeholder="Search something" class="search_content" type="text">
                             <button style="display: none" type="submit"></button>
                         </div>
                     </form>
@@ -133,13 +132,19 @@
                         @csrf
                         <button type="submit" class="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600 flex items-center gap-2">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                            Logout
+                            Đăng xuất
                         </button>
                     </form>
                     <button class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 flex items-center gap-2">
                         <a class="text-decoration: none; color: black" href="{{route('profile.edit')}}">
                             <i class="fa-solid fa-user"></i>
-                            Profile
+                            Trang cá nhân
+                        </a>
+                    </button>
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 flex items-center gap-2">
+                        <a class="text-decoration: none; color: black" href="{{route('orders.showOrders')}}">
+                            <i class="fas fa-shopping-bag mr-2"></i>
+                            Đơn hàng
                         </a>
                     </button>
                 </div>
@@ -160,7 +165,8 @@
         @foreach($cartDetails as $index => $detail)
             <input type="hidden" name="productDetails[{{ $index }}][productDetailID]" value="{{ $detail->productDetailID }}">
             <input type="hidden" name="productDetails[{{ $index }}][quantity]" value="{{ $detail->quantity }}">
-            <input type="hidden" name="productDetails[{{ $index }}][unitPrice]" value="{{ $detail->product->productSellPrice }}">
+            <input type="hidden" name="productDetails[{{ $index }}][unitPrice]" value="{{ $detail->productDetail?->product->productSellPrice }}">
+            <input type="hidden" name="discountCode" value="{{ $discountCode }}">
         @endforeach
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -175,9 +181,7 @@
                     </h2>
 
                     {{-- Địa chỉ đã đăng nhập --}}
-                    <input type="hidden" id="city_name" name="city_name" value="{{ Auth::user()->city }}">
-                    <input type="hidden" id="district_name" name="district_name" value="{{ Auth::user()->district }}">
-                    <input type="hidden" id="ward_name" name="ward_name" value="{{ Auth::user()->ward }}">
+
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -197,58 +201,29 @@
                             <input type="text" name="street_address" value="{{ Auth::user()->street_address }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors" placeholder="Số nhà, tên đường" required>
                         </div>
                     </div>
+                    <br>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tỉnh/Thành phố *</label>
+                            <input type="text" name="city" value="{{ Auth::user()->city }}" placeholder="Nhập tỉnh/thành phố"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                         <div>
-                            <label class="block text-sm font-medium mb-1">Tỉnh/Thành phố *</label>
-                            <select name="city" id="province" data-selected="{{ Auth::user()->city }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors" required>
-                                <option value="">Chọn tỉnh/thành</option>
-                            </select>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Quận/Huyện *</label>
+                            <input type="text" name="district" value="{{ Auth::user()->district }}" placeholder="Nhập quận/huyện"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
                         </div>
+
                         <div>
-                            <label class="block text-sm font-medium mb-1">Quận/Huyện *</label>
-                            <select name="district" id="district" data-selected="{{ Auth::user()->district }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors" disabled required>
-                                <option value="">Chọn quận/huyện</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Phường/Xã *</label>
-                            <select name="ward" id="ward" data-selected="{{ Auth::user()->ward }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors" disabled required>
-                                <option value="">Chọn phường/xã</option>
-                            </select>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Phường/Xã *</label>
+                            <input type="text" name="ward" value="{{ Auth::user()->ward }}" placeholder="Nhập phường/xã"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
                         </div>
                     </div>
+
                 </div>
 
-                {{-- Phương thức vận chuyển --}}
-                <div class="bg-white p-6 rounded-lg border shadow-sm">
-                    <h2 class="text-xl font-semibold flex items-center gap-2 mb-6">
-                        <i class="fas fa-truck text-orange-500"></i>
-                        Phương thức vận chuyển
-                    </h2>
-                    <div class="space-y-3">
-                        <label class="flex items-center justify-between border p-4 rounded-lg hover:border-orange-500 cursor-pointer transition-colors">
-                            <div class="flex items-center gap-3">
-                                <input type="radio" name="shipping" value="standard" checked class="text-orange-500 focus:ring-orange-500">
-                                <span class="font-medium">Giao hàng tiêu chuẩn</span>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium">30.000đ</div>
-                                <div class="text-sm text-gray-500">3-5 ngày</div>
-                            </div>
-                        </label>
-                        <label class="flex items-center justify-between border p-4 rounded-lg hover:border-orange-500 cursor-pointer transition-colors">
-                            <div class="flex items-center gap-3">
-                                <input type="radio" name="shipping" value="express" class="text-orange-500 focus:ring-orange-500">
-                                <span class="font-medium">Giao hàng nhanh</span>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium">50.000đ</div>
-                                <div class="text-sm text-gray-500">1-2 ngày</div>
-                            </div>
-                        </label>
-                    </div>
-                </div>
 
                 {{-- Phương thức thanh toán --}}
                 <div class="bg-white p-6 rounded-lg border shadow-sm">
@@ -277,8 +252,8 @@
 
                         @foreach($cartDetails as $detail)
                             @php
-                                $product = $detail->product;
-                                $image = $product->firstImage?->imageLink ?? 'default.jpg';
+                                $product = $detail->productDetail?->product;
+                                $image = $product?->firstImage?->imageLink ?? 'default.jpg';
                                 $size = $detail->productDetail?->size?->sizeName ?? 'N/A';
                                 $color = $detail->productDetail?->color?->colorName ?? 'N/A';
                             @endphp
@@ -303,15 +278,11 @@
                         <div class="space-y-2 text-sm">
                             <div class="flex justify-between">
                                 <span>Tạm tính</span>
-                                <span>{{ number_format($total ?? 0, 0, ',', '.') }}đ</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>Phí vận chuyển</span>
-                                <span>30.000đ</span>
+                                <span>{{ number_format($subtotal ?? 0, 0, ',', '.') }}đ</span>
                             </div>
                             <div class="flex justify-between">
                                 <span>Giảm giá</span>
-                                <span>0đ</span>
+                                <span>{{ number_format($discountValue ?? 0, 0, ',', '.') }}đ</span>
                             </div>
                             <hr class="border-gray-200">
                             <div class="flex justify-between font-bold text-orange-500 text-lg">
@@ -341,6 +312,19 @@
             </div>
         </div>
     </form>
+</div>
+<div id="zalo-chat-widget" class="fixed bottom-6 right-6 z-50">
+    <div style="margin-bottom: 12px" id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://zalo.me/0946871653">
+            <img src="https://img.icons8.com/?size=100&id=DrWXvmB9ORxE&format=png&color=000000" alt="">
+        </a>
+    </div>
+
+    <div id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://www.facebook.com/capybarahdt/">
+            <i class="fab fa-facebook-messenger text-2xl"></i>
+        </a>
+    </div>
 </div>
 <footer class="bg-gray-900 text-white pt-12 pb-6">
     <div class="container mx-auto px-4">
@@ -401,125 +385,12 @@
         <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center">
             <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2023 TrendyTeen. All rights reserved.</p>
             <div class="flex space-x-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
+
             </div>
         </div>
     </div>
 </footer>
-<script>
-    const provinceSelect = document.getElementById('province');
-    const districtSelect = document.getElementById('district');
-    const wardSelect = document.getElementById('ward');
 
-    // Tải danh sách tỉnh
-    fetch('https://provinces.open-api.vn/api/p/')
-        .then(res => res.json())
-        .then(data => {
-            data.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.code;
-                option.textContent = item.name;
-                option.setAttribute('data-name', item.name);
-                provinceSelect.appendChild(option);
-            });
-
-            // Gán lại giá trị đã chọn
-            const selectedProvince = provinceSelect.getAttribute('data-selected');
-            if (selectedProvince) {
-                const optionToSelect = Array.from(provinceSelect.options).find(opt => opt.textContent.trim() === selectedProvince.trim());
-                if (optionToSelect) {
-                    provinceSelect.value = optionToSelect.value;
-                    provinceSelect.dispatchEvent(new Event('change')); // Gọi sự kiện để load quận
-                }
-            }
-        });
-
-    // Khi chọn tỉnh, tải quận/huyện
-    provinceSelect.addEventListener('change', function () {
-        const provinceCode = this.value;
-        districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
-        wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
-        wardSelect.disabled = true;
-
-        if (!provinceCode) {
-            districtSelect.disabled = true;
-            return;
-        }
-
-        fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`)
-            .then(res => res.json())
-            .then(data => {
-                data.districts.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item.code;
-                    option.textContent = item.name;
-                    option.setAttribute('data-name', item.name);
-                    districtSelect.appendChild(option);
-                });
-                districtSelect.disabled = false;
-
-                // Gán lại giá trị đã chọn cho quận/huyện
-                const selectedDistrict = districtSelect.getAttribute('data-selected');
-                if (selectedDistrict) {
-                    const optionToSelect = Array.from(districtSelect.options).find(opt => opt.textContent.trim() === selectedDistrict.trim());
-                    if (optionToSelect) {
-                        districtSelect.value = optionToSelect.value;
-                        districtSelect.dispatchEvent(new Event('change')); // Gọi sự kiện để load phường
-                    }
-                }
-            });
-
-        // Cập nhật tên tỉnh
-        const selectedOption = this.options[this.selectedIndex];
-        document.getElementById('city_name').value = selectedOption.getAttribute('data-name') || selectedOption.textContent;
-    });
-
-    // Khi chọn quận/huyện, tải phường/xã
-    districtSelect.addEventListener('change', function () {
-        const districtCode = this.value;
-        wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
-
-        if (!districtCode) {
-            wardSelect.disabled = true;
-            return;
-        }
-
-        fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`)
-            .then(res => res.json())
-            .then(data => {
-                data.wards.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item.code;
-                    option.textContent = item.name;
-                    option.setAttribute('data-name', item.name);
-                    wardSelect.appendChild(option);
-                });
-                wardSelect.disabled = false;
-
-                // Gán lại giá trị đã chọn cho phường/xã
-                const selectedWard = wardSelect.getAttribute('data-selected');
-                if (selectedWard) {
-                    const optionToSelect = Array.from(wardSelect.options).find(opt => opt.textContent.trim() === selectedWard.trim());
-                    if (optionToSelect) {
-                        wardSelect.value = optionToSelect.value;
-                    }
-                }
-            });
-
-        // Cập nhật tên quận
-        const selectedOption = this.options[this.selectedIndex];
-        document.getElementById('district_name').value = selectedOption.getAttribute('data-name') || selectedOption.textContent;
-    });
-
-    // Cập nhật tên phường
-    wardSelect.addEventListener('change', function () {
-        const selectedOption = this.options[this.selectedIndex];
-        document.getElementById('ward_name').value = selectedOption.getAttribute('data-name') || selectedOption.textContent;
-    });
-</script>
 <script src="{{asset('js/Customer/Sidebar.js')}}"></script>
 <script src="{{asset('js/Customer/customerPage.js')}}"></script>
 

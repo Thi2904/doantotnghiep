@@ -58,28 +58,28 @@ class DatabaseSeeder extends Seeder
 
 
         DB::table("colors")->insert([
-            "colorName" => "Red",
+            "colorName" => "Đỏ",
         ]);
         DB::table("colors")->insert([
-            "colorName" => "Blue",
+            "colorName" => "Xanh nước",
         ]);
         DB::table("colors")->insert([
-            "colorName" => "Pink",
+            "colorName" => "Hồng",
         ]);
         DB::table("colors")->insert([
-            "colorName" => "Purple",
+            "colorName" => "Tím ",
         ]);
         DB::table("colors")->insert([
-            "colorName" => "Black",
+            "colorName" => "Đen",
         ]);
         DB::table("colors")->insert([
-            "colorName" => "White",
+            "colorName" => "Trắng",
         ]);
         DB::table("colors")->insert([
-            "colorName" => "Green",
+            "colorName" => "Xanh lá",
         ]);
         DB::table("colors")->insert([
-            "colorName" => "Orange",
+            "colorName" => "Cam",
         ]);
 
 

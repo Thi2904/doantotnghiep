@@ -52,19 +52,18 @@
         </div>
 
         <nav class="hidden md:flex space-x-8">
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Phụ kiện</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Giới thiệu</a>
+            <a href="/" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
+            <a href="/products/gender/0" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
+            <a href="/products/gender/1" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
+            <a href="/showProduct" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Sản phẩm</a>
         </nav>
 
         <div class="flex items-center space-x-4">
             <div class="flex search">
                 <div class="">
-                    <form action="">
+                    <form action="/showProduct">
                         <div class="search-box">
-                            <input placeholder="Search something" class="search_content" type="text">
+                            <input name="search" placeholder="Search something" class="search_content" type="text">
                             <button style="display: none" type="submit"></button>
                         </div>
                     </form>
@@ -101,13 +100,19 @@
                         @csrf
                         <button type="submit" class="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600 flex items-center gap-2">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                            Logout
+                            Đăng xuất
                         </button>
                     </form>
                     <button class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 flex items-center gap-2">
                         <a class="text-decoration: none; color: black" href="{{route('profile.edit')}}">
                             <i class="fa-solid fa-user"></i>
-                            Profile
+                            Trang cá nhân
+                        </a>
+                    </button>
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 flex items-center gap-2">
+                        <a class="text-decoration: none; color: black" href="{{route('orders.showOrders')}}">
+                            <i class="fas fa-shopping-bag mr-2"></i>
+                            Đơn hàng
                         </a>
                     </button>
                 </div>
@@ -145,87 +150,34 @@
                 </ul>
             </div>
 
-            <div class="bg-white rounded-lg shadow-md p-5 mb-6">
-                <h3 class="text-lg font-semibold mb-4 text-gray-800">Lọc theo giá</h3>
-                <div class="space-y-4">
-                    <div>
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm text-gray-600">Giá thấp nhất</span>
-                            <span class="text-sm text-gray-600" id="minPriceValue">0đ</span>
+            <form method="GET" action="{{ route('products.findByPrice') }}">
+                <div class="bg-white rounded-lg shadow-md p-5 mb-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Lọc theo giá</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm text-gray-600">Giá thấp nhất</span>
+                                <span class="text-sm text-gray-600" id="minPriceValue">0đ</span>
+                            </div>
+                            <input type="range" min="0" max="2000000" value="{{ request('min_price', 0) }}" step="50000" name="min_price" id="minPrice"
+                                   class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                         </div>
-                        <input type="range" min="0" max="2000000" value="0" step="50000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" id="minPrice">
-                    </div>
-                    <div>
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm text-gray-600">Giá cao nhất</span>
-                            <span class="text-sm text-gray-600" id="maxPriceValue">2.000.000đ</span>
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm text-gray-600">Giá cao nhất</span>
+                                <span class="text-sm text-gray-600" id="maxPriceValue">2.000.000đ</span>
+                            </div>
+                            <input type="range" min="0" max="2000000" value="{{ request('max_price', 2000000) }}" step="50000" name="max_price" id="maxPrice"
+                                   class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                         </div>
-                        <input type="range" min="0" max="2000000" value="2000000" step="50000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" id="maxPrice">
-                    </div>
-                    <button class="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-md mt-4">
-                        Áp dụng
-                    </button>
-                </div>
-            </div>
-
-
-            <div class="bg-white rounded-lg shadow-md p-5">
-                <h3 class="text-lg font-semibold mb-4 text-gray-800">Đánh giá</h3>
-                <div class="space-y-2">
-                    <div class="flex items-center">
-                        <input type="radio" name="rating" id="rating5" class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300">
-                        <label for="rating5" class="ml-2 text-gray-700 flex items-center">
-                <span class="flex text-amber-400">
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                </span>
-                            <span class="ml-1">5 sao</span>
-                        </label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="radio" name="rating" id="rating4" class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300">
-                        <label for="rating4" class="ml-2 text-gray-700 flex items-center">
-                <span class="flex text-amber-400">
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="far fa-star"></i>
-                </span>
-                            <span class="ml-1">4 sao trở lên</span>
-                        </label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="radio" name="rating" id="rating3" class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300">
-                        <label for="rating3" class="ml-2 text-gray-700 flex items-center">
-                <span class="flex text-amber-400">
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="far fa-star"></i>
-                  <i class="far fa-star"></i>
-                </span>
-                            <span class="ml-1">3 sao trở lên</span>
-                        </label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="radio" name="rating" id="rating2" class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300">
-                        <label for="rating2" class="ml-2 text-gray-700 flex items-center">
-                <span class="flex text-amber-400">
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="far fa-star"></i>
-                  <i class="far fa-star"></i>
-                  <i class="far fa-star"></i>
-                </span>
-                            <span class="ml-1">2 sao trở lên</span>
-                        </label>
+                        <button type="submit" class="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-md mt-4">
+                            Áp dụng
+                        </button>
                     </div>
                 </div>
-            </div>
+            </form>
+
+
         </div>
 
         <!-- Product Grid -->
@@ -314,7 +266,19 @@
         </div>
     </div>
 </main>
+<div id="zalo-chat-widget" class="fixed bottom-6 right-6 z-50">
+    <div style="margin-bottom: 12px" id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://zalo.me/0946871653">
+            <img src="https://img.icons8.com/?size=100&id=DrWXvmB9ORxE&format=png&color=000000" alt="">
+        </a>
+    </div>
 
+    <div id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://www.facebook.com/capybarahdt/">
+            <i class="fab fa-facebook-messenger text-2xl"></i>
+        </a>
+    </div>
+</div>
 <!-- Footer -->
 <footer class="bg-gray-900 text-white pt-12 pb-6">
     <div class="container mx-auto px-4">
@@ -375,14 +339,33 @@
         <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center">
             <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2023 TrendyTeen. All rights reserved.</p>
             <div class="flex space-x-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
+
             </div>
         </div>
     </div>
 </footer>
+<script>
+    const minInput = document.getElementById('minPrice');
+    const maxInput = document.getElementById('maxPrice');
+    const minDisplay = document.getElementById('minPriceValue');
+    const maxDisplay = document.getElementById('maxPriceValue');
+
+    function formatCurrency(value) {
+        return parseInt(value).toLocaleString('vi-VN') + 'đ';
+    }
+
+    minInput.addEventListener('input', () => {
+        minDisplay.textContent = formatCurrency(minInput.value);
+    });
+
+    maxInput.addEventListener('input', () => {
+        maxDisplay.textContent = formatCurrency(maxInput.value);
+    });
+
+    // Khởi tạo lại khi load
+    minDisplay.textContent = formatCurrency(minInput.value);
+    maxDisplay.textContent = formatCurrency(maxInput.value);
+</script>
 
 <script>
     const minPriceSlider = document.getElementById('minPrice');

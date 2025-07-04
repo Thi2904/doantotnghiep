@@ -76,13 +76,7 @@
                     <a href="">Quên mật khẩu?</a>
                 </div>
                 <button type="submit" class="btn">Đăng nhập</button>
-                <p>hoặc đăng nhập bằng mạng xã hội</p>
-                <div class="social-icons">
-                    <a href=""><i class='bx bxl-google'></i></a>
-                    <a href=""><i class='bx bxl-facebook'></i></a>
-                    <a href=""><i class='bx bxl-github'></i></a>
-                    <a href=""><i class='bx bxl-linkedin'></i></a>
-                </div>
+
             </form>
         </div>
         <div class="form-box register">
@@ -113,13 +107,7 @@
                 </div>
 
                 <button type="submit" class="btn">Đăng ký</button>
-                <p>hoặc đăng ký bằng mạng xã hội</p>
-                <div class="social-icons">
-                    <a href=""><i class='bx bxl-google'></i></a>
-                    <a href=""><i class='bx bxl-facebook'></i></a>
-                    <a href=""><i class='bx bxl-github'></i></a>
-                    <a href=""><i class='bx bxl-linkedin'></i></a>
-                </div>
+
             </form>
         </div>
 

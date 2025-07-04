@@ -77,7 +77,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/updatePassword', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
 
     // Hien thi san pham
-    Route::get('/showProduct', [\App\Http\Controllers\DisplayProductController::class, 'index'])->name('showProduct');
     Route::get('/product-details/{product}', [DisplayProductController::class, 'productDetails'])->name('productDetails');
 
 //    Cart
@@ -87,8 +86,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cart/remove/{id}', [CartController::class, 'removeItem'])->name('cart.remove');
 
     Route::post('/get-colors-by-size', [ProductController::class, 'getColorsBySize']);
-    Route::get('/products/category/{cateID}', [ProductController::class, 'filterByCategory'])->name('products.byCategory');
-
+    Route::get('/shop', [ProductController::class, 'findByPrice'])->name('products.findByPrice');
 //    Checkout Control
     Route::get('/checkout', [OrdersController::class, 'index'])->name('checkout.index');
     Route::post('/orders', [OrdersController::class, 'storeFromCustomer'])->name('orders.storeFromCustomer');
@@ -100,8 +98,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vnpay_return', [OrdersController::class, 'vnpayReturn'])->name('vnpay.return');
     Route::get('/discount/{id}', [App\Http\Controllers\CartController::class, 'getDiscount']);
 
-    Route::post('/comments', [CommentAndRateController::class, 'store']);
-    Route::put('/comments/{id}', [CommentAndRateController::class, 'update']);
-    Route::delete('/comments/{id}', [CommentAndRateController::class, 'destroy']);
+    Route::post('/comments', [CommentAndRateController::class, 'store'])->name('comments.store');
+    Route::put('/comments/{id}', [CommentAndRateController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{id}', [CommentAndRateController::class, 'destroy'])->name('comments.destroy');
 });
+Route::get('/showProduct', [\App\Http\Controllers\DisplayProductController::class, 'index'])->name('showProduct');
+Route::get('/products/category/{cateID}', [ProductController::class, 'filterByCategory'])->name('products.byCategory');
+Route::get('/products/gender/{genderID}', [ProductController::class, 'filterByGender'])->name('products.byGender');
 

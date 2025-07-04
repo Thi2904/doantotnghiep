@@ -28,7 +28,7 @@ class ProductImageController extends Controller
             }
         }
 
-        return redirect()->route('products.index')->with('success', 'Images uploaded successfully.');
+        return redirect()->route('products.index')->with('success', 'Thêm hình ảnh thành công.');
     }
 
     // Xoá ảnh
@@ -40,7 +40,7 @@ class ProductImageController extends Controller
         }
 
         $image->delete();
-        return back()->with('success', 'Image deleted successfully.');
+        return back()->with('success', 'Xóa hình ảnh thành công.');
     }
 
     // Cập nhật ảnh (thay ảnh mới)

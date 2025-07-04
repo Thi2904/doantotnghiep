@@ -30,26 +30,33 @@ class DisplayProductController extends Controller
         $comments = CommentAndRate::with('user')
             ->orderByDesc('rate')
             ->take(3)
+            ->latest()
             ->get();
-        $categories = Category::where('isDeleted', false)->get();
+        $categories = Category::where('isDeleted', false)->take(4)
+            ->get();
         return view('UserPage.HomePage', compact('products', 'categories','comments'));
     }
 //    Hien thi san pham
-    public function index()
+    public function index(Request $request)
     {
+        $search = request()->get('search');
+
         $products = Product::with(['firstImage', 'category'])
             ->where('isDeleted', 0)
+            ->where('productName', 'like', "%$search%")
             ->whereHas('category', function ($query) {
                 $query->where('isDeleted', 0);
             })
             ->paginate(8);
+
+
         $categories = Category::where('isDeleted', false)->get();
         foreach ($products as $product) {
             $product->average_star = $product->comments->avg('rate');
             $product->quantityComment = $product->comments->count('rate');
 
         }
-        return view('UserPage.Product', compact('products','categories'));
+        return view('UserPage.Product', compact('products','categories','search'));
     }
     public function productDetails($productID)
     {
@@ -69,6 +76,10 @@ class DisplayProductController extends Controller
             })
             ->exists();
         // Lay 1 hinh anh
+        $userComment = CommentAndRate::where('productID', $productID)
+            ->where('cusID', $user->id)
+            ->first();
+
         $products = Product::with(['firstImage', 'category'])
             ->where('isDeleted', 0)
             ->whereHas('category', function ($query) {
@@ -81,7 +92,10 @@ class DisplayProductController extends Controller
             ->where('prdID', $product->productID)
             ->get();
 
-        return view('UserPage.ProductDetails', compact('product','products','productDetails','comments','hasPurchased'));
+        $product->average_star = $product->comments->avg('rate');
+        $product->quantityComment = $product->comments->count('rate');
+
+        return view('UserPage.ProductDetails', compact('product','products','userComment','productDetails','comments','hasPurchased'));
     }
 
 }

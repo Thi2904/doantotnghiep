@@ -15,6 +15,10 @@ class DiscountProgram extends Model
         'start_date',
         'end_date',
     ];
+    public function order()
+    {
+        return $this->hasMany(Order::class, 'discount_program_id', 'id');
+    }
     public function isActive()
     {
         $now = now();

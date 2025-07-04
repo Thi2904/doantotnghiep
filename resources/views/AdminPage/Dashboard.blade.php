@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fashion Admin - Quản Lý Cửa Hàng</title>
+    <title>TrendyTeen Admin - Quản Lý Cửa Hàng</title>
     <link rel="stylesheet" href="{{asset('css/admin/styles.css')}}">
     <!-- Font Google -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,6 +12,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
 @if(session()->has('success'))
@@ -46,7 +48,7 @@
     <div class="header-container">
         <div class="header-left">
             <div class="logo">
-                <span class="logo-text">Fashion Admin</span>
+                <span class="logo-text">TrendyTeen Admin</span>
             </div>
         </div>
         <div class="header-right">
@@ -112,13 +114,13 @@
                 <!-- Doanh thu -->
                 <div class="stat-card">
                     <div class="stat-header">
-                        <span class="stat-title">Doanh Thu</span>
-                        <i data-lucide="dollar-sign" class="stat-icon"></i>
+                        <span class="stat-title">Doanh Thu Trong Tháng {{ request('month', now()->month) }}</span>
+                        <i class="fa-solid fa-dollar-sign stat-icon"></i>
                     </div>
                     <div class="stat-content">
                         <div class="stat-value">{{ number_format($currentRevenue, 0, ',', '.') }}đ</div>
                         <div class="stat-change {{ $revenueChange >= 0 ? 'positive' : 'negative' }}">
-                            <i data-lucide="{{ $revenueChange >= 0 ? 'arrow-up-right' : 'arrow-down-right' }}"></i>
+                            <i class="fas {{ $revenueChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
                             <span>{{ round(abs($revenueChange), 1) }}% so với tháng trước</span>
                         </div>
                     </div>
@@ -127,13 +129,13 @@
                 <!-- Đơn hàng -->
                 <div class="stat-card">
                     <div class="stat-header">
-                        <span class="stat-title">Đơn Hàng</span>
-                        <i data-lucide="credit-card" class="stat-icon"></i>
+                        <span class="stat-title">Đơn Hàng Tháng {{ request('month', now()->month) }}</span>
+                        <i class="fa-solid fa-credit-card stat-icon"></i>
                     </div>
                     <div class="stat-content">
-                        <div class="stat-value">+{{ $currentOrders }}</div>
+                        <div class="stat-value">+{{ $currentOrders }} đơn hàng</div>
                         <div class="stat-change {{ $orderChange >= 0 ? 'positive' : 'negative' }}">
-                            <i data-lucide="{{ $orderChange >= 0 ? 'arrow-up-right' : 'arrow-down-right' }}"></i>
+                            <i class="fas {{ $orderChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
                             <span>{{ round(abs($orderChange), 1) }}% so với tháng trước</span>
                         </div>
                     </div>
@@ -142,11 +144,11 @@
                 <!-- Sản phẩm -->
                 <div class="stat-card">
                     <div class="stat-header">
-                        <span class="stat-title">Sản Phẩm</span>
-                        <i data-lucide="package" class="stat-icon"></i>
+                        <span class="stat-title">Sản Phẩm Mới</span>
+                        <i class="fa-solid fa-box stat-icon"></i>
                     </div>
                     <div class="stat-content">
-                        <div class="stat-value">{{ $totalProducts }}</div>
+                        <div class="stat-value">{{ $totalProducts }} sản phẩm</div>
                         <div class="stat-description">{{ $newProducts }} sản phẩm mới trong tháng này</div>
                     </div>
                 </div>
@@ -154,13 +156,13 @@
                 <!-- Khách hàng -->
                 <div class="stat-card">
                     <div class="stat-header">
-                        <span class="stat-title">Khách Hàng</span>
-                        <i data-lucide="users" class="stat-icon"></i>
+                        <span class="stat-title">Khách Hàng Mới</span>
+                        <i class="fa-solid fa-users stat-icon"></i>
                     </div>
                     <div class="stat-content">
-                        <div class="stat-value">+{{ $totalCustomers }}</div>
+                        <div class="stat-value">+{{ $totalCustomers }} khách hàng</div>
                         <div class="stat-change {{ $customerChange >= 0 ? 'positive' : 'negative' }}">
-                            <i data-lucide="{{ $customerChange >= 0 ? 'arrow-up-right' : 'arrow-down-right' }}"></i>
+                            <i class="fas {{ $customerChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
                             <span>{{ round(abs($customerChange), 1) }}% so với tháng trước</span>
                         </div>
                     </div>
@@ -170,11 +172,35 @@
 
             <!-- Dashboard Content Grid -->
             <div class="dashboard-grid">
-                <!-- Top Products -->
+                <div class="dashboard-card chart-card">
+                    <div class="card-header">
+                        <div style="display:flex; justify-content: space-between">
+                            <h3 class="card-title">Biểu Đồ Doanh Thu</h3>
+                            <form method="GET" class="month-form">
+                                <label for="month">Chọn tháng:</label>
+                                <select name="month" id="month" onchange="this.form.submit()">
+                                    @for ($m = 1; $m <= 12; $m++)
+                                        <option value="{{ $m }}" {{ request('month', now()->month) == $m ? 'selected' : '' }}>
+                                            Tháng {{ $m }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </form>
+                        </div>
+
+
+                        <p class="card-description">Doanh thu theo ngày trong tháng {{ request('month', now()->month) }}</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
                 <div class="dashboard-card">
                     <div class="card-header">
                         <h3 class="card-title">Sản Phẩm Bán Chạy</h3>
-                        <p class="card-description">Top 5 sản phẩm bán chạy nhất tháng này</p>
+                        <p class="card-description">Top 3 sản phẩm bán chạy nhất tháng {{ request('month', now()->month) }}</p>
                     </div>
                     <div class="card-content">
                         <div class="product-list">
@@ -193,36 +219,55 @@
                 </div>
 
 
-                <!-- Recent Orders -->
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Đơn Hàng Gần Đây</h3>
-                        <p class="card-description">5 đơn hàng mới nhất trong hệ thống</p>
-                    </div>
-                    <div class="card-content">
-                        <div class="order-list">
-                            @foreach ($recentOrders as $order)
-                                <div class="order-item">
-                                    <div class="order-info">
-                                        <p class="order-id">Đơn #ORD-{{ $order->orderID }}</p>
-                                        <p class="order-customer">{{ $order->customer->name ?? 'N/A' }}</p>
-                                    </div>
-                                    <div class="order-details">
-                        <span class="order-status {{ strtolower(str_replace(' ', '-', $order->status->statusName)) }}">
-                            {{ $order->status->statusName }}
-                        </span>
-                                        <p class="order-amount">{{ number_format($order->totalPrice, 0, ',', '.') }}đ</p>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </section>
     </main>
 </div>
+<script>
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+
+    const revenueChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($revenueLabels) !!}, // Mảng ngày ["01", "02", ..., "30"]
+            datasets: [{
+                label: 'Doanh thu (VNĐ)',
+                data: {!! json_encode($revenueData) !!}, // Mảng doanh thu theo ngày
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.4,
+                fill: true,
+                pointRadius: 3,
+                pointHoverRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('vi-VN') + 'đ';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y.toLocaleString('vi-VN') + 'đ';
+                        }
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
 
 <script src="{{asset('js/Admin/script.js')}}"></script>
 </body>

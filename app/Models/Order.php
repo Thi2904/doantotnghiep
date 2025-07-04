@@ -17,28 +17,29 @@ class Order extends Model
         'shipping_ward',
         'shipping_district',
         'shipping_city',
-        'totalPrice'
+        'totalPrice',
+        'discount_program_id'
     ];
 
-    // Liên kết với user là khách hàng
     public function customer()
     {
         return $this->belongsTo(User::class, 'cusID','id');
     }
 
-    // Liên kết với user là admin
     public function admin()
     {
         return $this->belongsTo(User::class, 'adminID','id');
     }
+    public function discount()
+    {
+        return $this->belongsTo(DiscountProgram::class, 'discount_program_id','id');
+    }
 
-    // Liên kết với status
     public function status()
     {
         return $this->belongsTo(Status::class, 'staID', 'statusID');
     }
 
-    // Các chi tiết đơn hàng
     public function orderDetails()
     {
         return $this->hasMany(OrderDetail::class, 'orderID', 'orderID');

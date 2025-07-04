@@ -49,19 +49,18 @@
         </div>
 
         <nav class="hidden md:flex space-x-8">
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
+            <a href="/" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
+            <a href="/products/gender/0" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
+            <a href="/products/gender/1" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
             <a href="/showProduct" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Sản phẩm</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Giới thiệu</a>
         </nav>
 
         <div class="flex items-center space-x-4">
             <div class="flex search">
                 <div class="">
-                    <form action="">
+                    <form action="/showProduct">
                         <div class="search-box">
-                            <input placeholder="Search something" class="search_content" type="text">
+                            <input name="search" placeholder="Search something" class="search_content" type="text">
                             <button style="display: none" type="submit"></button>
                         </div>
                     </form>
@@ -200,6 +199,7 @@
             @endforeach
            </div>
     </div>
+
 </section>
 
 <!-- New Arrivals -->
@@ -272,18 +272,19 @@
     </div>
 </section>
 
-<!-- Newsletter -->
-<section class="py-12 bg-orange-50">
-    <div class="container mx-auto px-4 text-center">
-        <h2 class="text-3xl font-bold mb-4">Đăng ký nhận tin khuyến mãi</h2>
-        <p class="text-gray-600 mb-8 max-w-2xl mx-auto">Nhận thông báo về các sản phẩm mới, khuyến mãi đặc biệt và nhiều ưu đãi hấp dẫn khác.</p>
-
-        <div class="flex flex-col sm:flex-row max-w-md mx-auto sm:max-w-lg">
-            <input type="email" placeholder="Nhập email của bạn" class="px-4 py-3 rounded-l-full sm:rounded-r-none rounded-r-full mb-2 sm:mb-0 flex-grow border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500">
-            <button class="bg-orange-500 text-white px-6 py-3 rounded-r-full sm:rounded-l-none rounded-l-full font-medium hover:bg-orange-600 transition">Đăng ký</button>
-        </div>
+<div id="zalo-chat-widget" class="fixed bottom-6 right-6 z-50">
+    <div style="margin-bottom: 12px" id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://zalo.me/0946871653">
+            <img src="https://img.icons8.com/?size=100&id=DrWXvmB9ORxE&format=png&color=000000" alt="">
+        </a>
     </div>
-</section>
+
+    <div id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://www.facebook.com/capybarahdt/">
+            <i class="fab fa-facebook-messenger text-2xl"></i>
+        </a>
+    </div>
+</div>
 
 <!-- Footer -->
 <footer class="bg-gray-900 text-white pt-12 pb-6">
@@ -345,10 +346,7 @@
         <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center">
             <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2023 TrendyTeen. All rights reserved.</p>
             <div class="flex space-x-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
+
             </div>
         </div>
     </div>

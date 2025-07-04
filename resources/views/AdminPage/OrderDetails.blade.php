@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fashion Admin - Chi Tiết Đơn Hàng</title>
+    <title>TrendyTeen Admin - Chi Tiết Đơn Hàng</title>
     <link rel="stylesheet" href="{{asset('css/admin/styles.css')}}">
     <link rel="stylesheet" href="{{asset('css/admin/stylePopup.css')}}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -47,7 +47,7 @@
     <div class="header-container">
         <div class="header-left">
             <div class="logo">
-                <span class="logo-text">Fashion Admin</span>
+                <span class="logo-text">TrendyTeen Admin</span>
             </div>
         </div>
         <div class="header-right">
@@ -125,7 +125,7 @@
         <section id="order-detail-section" class="content-section active">
             <div class="section-header">
                 <div>
-                    <h1 class="section-title">Chi Tiết Đơn Hàng #ORD001</h1>
+                    <h1 class="section-title">Chi Tiết Đơn Hàng </h1>
                     <p class="section-description">Thông tin chi tiết về đơn hàng</p>
                 </div>
                 <div style="display: flex; gap: 10px;">
@@ -187,6 +187,19 @@
                                 <label style="font-weight: 600; color: #374151; display: block; margin-bottom: 5px;">Email:</label>
                                 <span style="color: #1f2937;">{{ $order->customer->email ?? 'Không có email' }}</span>
                             </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="font-weight: 600; color: #374151; display: block; margin-bottom: 5px;">Giá trị được giảm:</label>
+                                @if($order->discount)
+                                    @php
+                                        $discountAmount = $order->discount->calculateDiscount($order->totalPrice + 0);
+                                    @endphp
+                                    <span style="color: #dc2626; font-weight: 600; font-size: 18px;">
+                                        {{ number_format($discountAmount, 0, ',', '.') }}đ
+                                    </span>
+                                @else
+                                    <span style="color: #9ca3af;">0đ</span>
+                                @endif
+                            </div>
                         </div>
                         <div>
                             <div style="margin-bottom: 15px;">
@@ -202,6 +215,15 @@
                                 <span style="color: #1f2937;">{{ $order->payment->payMethod ?? 'Không rõ' }}</span>
                             </div>
                             <div style="margin-bottom: 15px;">
+                                <label style="font-weight: 600; color: #374151; display: block; margin-bottom: 5px;">Chương trình giảm giá được áp dụng:</label>
+                                @if($order->discount)
+                                    <span style="color: #1f2937;">{{ $order->discount->name }}</span>
+                                @else
+                                    <span style="color: #9ca3af;">Không áp dụng</span>
+                                @endif
+                            </div>
+
+                            <div style="margin-bottom: 15px;">
                                 <label style="font-weight: 600; color: #374151; display: block; margin-bottom: 5px;">Tổng giá trị:</label>
                                 <span style="color: #dc2626; font-weight: 600; font-size: 18px;">{{ number_format($order->totalPrice, 0, ',', '.') }}đ</span>
                             </div>
@@ -210,13 +232,16 @@
                     <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
                         <label style="font-weight: 600; color: #374151; display: block; margin-bottom: 5px;">Địa chỉ giao hàng:</label>
                         <span style="color: #1f2937;">
-                            {{ $order->shipping_street }}, {{ $order->shipping_ward }}, {{ $order->shipping_district }}, {{ $order->shipping_city }}
+                            @if(!empty($order->shipping_street))
+                                {{ $order->shipping_street }}, {{ $order->shipping_ward }}, {{ $order->shipping_district }}, {{ $order->shipping_city }}
+                            @else
+                                Đơn hàng này được mua trực tiếp tại cửa hàng
+                            @endif
                         </span>
                     </div>
                 </div>
             </div>
 
-            <!-- Chi tiết sản phẩm -->
             <div class="table-container">
                 <div class="table-header">
                     <h2 style="font-size: 18px; margin: 0;">Chi Tiết Sản Phẩm</h2>
@@ -275,20 +300,18 @@
         const originalForm = container.querySelector('.product-form');
         const newForm = originalForm.cloneNode(true);
 
-        // Reset values
         newForm.querySelectorAll('input, select').forEach(el => {
             el.value = '';
         });
 
         container.appendChild(newForm);
 
-        // Gọi lại chức năng autocomplete + ajax size/color
         setupProductFormEvents(newForm);
 
         const formContainer = document.querySelector('.form-container');
         const totalForms = container.querySelectorAll('.product-form').length;
-        const formWidth = 320; // Chiều rộng mỗi form
-        const padding = 100; // Đệm
+        const formWidth = 320;
+        const padding = 100;
         formContainer.style.width = (totalForms * formWidth + padding) + 'px';
 
         container.style.display = 'flex';
@@ -320,8 +343,6 @@
                     searchInput.value = product.productCode;
                     prdIDInput.value = product.productID;
                     suggestionsBox.style.display = 'none';
-
-                    // Trigger AJAX size loading
                     loadSizes(product.productID, sizeSelect, colorSelect);
                 });
 

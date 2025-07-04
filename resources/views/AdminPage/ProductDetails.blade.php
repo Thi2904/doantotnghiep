@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fashion Admin - Quản Lý Cửa Hàng</title>
+    <title>TrendyTeen Admin - Quản Lý Cửa Hàng</title>
     <link rel="stylesheet" href="{{asset('css/admin/styles.css')}}">
     <link rel="stylesheet" href="{{asset('css/admin/stylePopup.css')}}">
     <link rel="stylesheet" href="{{asset('css/admin/additional-styles.css')}}">
@@ -13,6 +13,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>CLOTHES | BKACAD</title>
 </head>
 
@@ -48,7 +49,7 @@
     <div class="header-container">
         <div class="header-left">
             <div class="logo">
-                <span class="logo-text">Fashion Admin</span>
+                <span class="logo-text">TrendyTeen Admin</span>
             </div>
         </div>
         <div class="header-right">
@@ -107,8 +108,14 @@
 
             <!-- Product Information Card -->
             <div class="product-info-card">
-                <div class="card-header">
+                <div class="card-header" style="display: flex; justify-content: space-between">
                     <h2 class="card-title">Thông Tin Sản Phẩm</h2>
+                    <button class="dropdown-item"
+                            onclick="openImageUploadForm({{ $infoProduct->productID }})"
+                            style="background-color: #4CAF50; color: white; border: none;
+               border-radius: 6px; padding: 8px 16px; cursor: pointer; text-align: center;">
+                        Thêm hình ảnh
+                    </button>
                 </div>
                 <div class="card-content">
                     <div class="product-detail-grid">
@@ -125,10 +132,28 @@
                             </button>
                             <div class="thumbnail-grid">
                                 @foreach($infoProduct->images as $index => $image)
-                                    <img height="100px" width="100px" src="{{ asset('storage/' . $image->imageLink) }}" alt="Thumbnail 3" class="thumbnail">
-                                @endforeach
+                                    <div class="thumbnail-wrapper" style="position: relative; display: inline-block;">
+                                        <img height="100px" width="100px" src="{{ asset('storage/' . $image->imageLink) }}" alt="Thumbnail {{ $index + 1 }}" class="thumbnail" style="border-radius: 4px;">
 
+                                        <form method="POST" action="{{ route('product-images.destroy', ['image' => $image->imageID]) }}"
+                                              class="delete-image-form"
+                                              style="position: absolute; top: -10px; right: 20px;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button"
+                                                    class="delete-image-btn"
+                                                    style="background: rgba(128,128,128,0.8); border: none; color: white; font-weight: bold;
+                   border-radius: 50%; width: 20px; height: 20px; cursor: pointer;
+                   font-size: 14px; line-height: 18px; text-align: center; padding: 0;">
+                                                &times;
+                                            </button>
+                                        </form>
+
+                                    </div>
+                                @endforeach
                             </div>
+
+
                         </div>
 
                         <!-- Product Details -->
@@ -158,6 +183,21 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="form-overlay image-upload-overlay" id="imageUploadFormOverlay-{{ $infoProduct->productID }}" style="display: none;">
+                <div class="form-container" style="height: 200px">
+                    <h2>Thêm hình ảnh sản phẩm</h2>
+                    <form action="{{ route('product-images.upload', $infoProduct->productID) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <input type="file" name="productImages[]" multiple accept="image/*" required>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 15px;">
+                            <button type="submit" class="submit-btn">Tải lên</button>
+                            <button type="button" class="cancel-btn submit-btn" onclick="closeImageUploadForm({{ $infoProduct->productID }})" style="background-color: #dc3545;">Hủy</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         <div class="table-container">
@@ -229,16 +269,20 @@
                                         </button>
                                         <hr>
                                         <form
-                                            action="{{ route('product-details.destroy', $productDetail->id) }}"
                                             method="POST"
-                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');"
-                                            class="delete-form">
+                                            class="delete-product-detail-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="dropdown-item"  style="border: none; background: white; width: 100% ;text-align: left" title="Delete product">
+                                            <button
+                                                type="button"
+                                                class="dropdown-item delete-product-detail-btn"
+                                                data-url="{{ route('product-details.destroy', $productDetail->id) }}"
+                                                style="border: none; background: white; width: 100%; text-align: left"
+                                                title="Delete product detail">
                                                 <span style="color: red">Xóa</span>
                                             </button>
                                         </form>
+
                                     </div>
                                 </td>
                             </tr>
@@ -275,7 +319,7 @@
         </div>
     </section>
 </div>
-
+</div>
 <script>
     const thumbnails = document.querySelectorAll('.thumbnail');
     const mainImage = document.querySelector('.main-image img');
@@ -316,6 +360,71 @@
     // Khởi tạo ảnh đầu tiên là active
     updateMainImage(currentIndex);
 
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.delete-product-detail-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const url = button.dataset.url;
+
+                Swal.fire({
+                    title: 'Xóa chi tiết sản phẩm?',
+                    text: 'Thao tác này sẽ không thể hoàn tác.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Xác nhận xóa',
+                    cancelButtonText: 'Hủy',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = url;
+
+                        const csrf = document.createElement('input');
+                        csrf.type = 'hidden';
+                        csrf.name = '_token';
+                        csrf.value = '{{ csrf_token() }}';
+
+                        const method = document.createElement('input');
+                        method.type = 'hidden';
+                        method.name = '_method';
+                        method.value = 'DELETE';
+
+                        form.appendChild(csrf);
+                        form.appendChild(method);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.delete-image-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const form = button.closest('form');
+
+                Swal.fire({
+                    title: 'Xóa hình ảnh?',
+                    text: 'Hành động này không thể hoàn tác!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Xác nhận xóa',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
 </script>
 
 <script src="{{asset('js/Admin/jsPopup.js')}}"></script>

@@ -68,6 +68,8 @@ class ProductController extends Controller
             $data['productCode'] = Product::generateProductCode('AG');
         }elseif (Str::lower($category->categoryName) === 'quần âu'){
             $data['productCode'] = Product::generateProductCode('QAU');
+        }elseif (Str::lower($category->categoryName) === 'quần short'){
+            $data['productCode'] = Product::generateProductCode('QS');
         }else{
             $data['productCode'] = Product::generateProductCode('PRD');
         }
@@ -95,26 +97,39 @@ class ProductController extends Controller
             'productName',
             'productBuyPrice',
             'productSellPrice',
-            'productSize',
-            'productColor',
+            'productDesc',
             'productForGender',
             'productQuantity',
             'cateID'
         ]);
 
-        if (Str::lower($category->categoryName) === 'áo thun' && empty($product->productCode)) {
+        if (Str::lower($category->categoryName) === 'áo thun') {
             $data['productCode'] = Product::generateProductCode('AT');
+        }elseif (Str::lower($category->categoryName) === 'quần jeans'){
+            $data['productCode'] = Product::generateProductCode('QJ');
+        }elseif (Str::lower($category->categoryName) === 'quần đùi'){
+            $data['productCode'] = Product::generateProductCode('QD');
+        }elseif (Str::lower($category->categoryName) === 'áo hoodie'){
+            $data['productCode'] = Product::generateProductCode('AH');
+        }elseif (Str::lower($category->categoryName) === 'áo gile'){
+            $data['productCode'] = Product::generateProductCode('AG');
+        }elseif (Str::lower($category->categoryName) === 'quần âu'){
+            $data['productCode'] = Product::generateProductCode('QAU');
+        }elseif (Str::lower($category->categoryName) === 'quần short'){
+            $data['productCode'] = Product::generateProductCode('QS');
+        }else{
+            $data['productCode'] = Product::generateProductCode('PRD');
         }
 
         $product->update($data);
 
-        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+        return redirect()->route('products.index')->with('success', 'Chỉnh sửa sản phẩm thành công.');
     }
 
     public function destroy(Product $product)
     {
         $product->update(['isDeleted' => true]);
-        return redirect()->route('products.index')->with('success', 'Product deleted (soft) successfully.');
+        return redirect()->route('products.index')->with('success', 'Xóa sản phẩm thành công.');
     }
     public function getColorsBySize(Request $request)
     {
@@ -145,9 +160,53 @@ class ProductController extends Controller
             ->paginate(8); // nếu bạn dùng phân trang
 
         $categories = Category::where('isDeleted', false)->get();
+        foreach ($products as $product) {
+            $product->average_star = $product->comments->avg('rate');
+            $product->quantityComment = $product->comments->count('rate');
 
+        }
         return view('UserPage.Product', compact('products','categories'));
     }
+    public function filterByGender($genderID)
+    {
+        $products = Product::with(['firstImage', 'category'])
+            ->where('isDeleted', 0)
+            ->where('productForGender', $genderID)
+            ->paginate(8); // nếu bạn dùng phân trang
+
+        $categories = Category::where('isDeleted', false)->get();
+        foreach ($products as $product) {
+            $product->average_star = $product->comments->avg('rate');
+            $product->quantityComment = $product->comments->count('rate');
+
+        }
+        return view('UserPage.Product', compact('products','categories'));
+    }
+    public function findByPrice(Request $request)
+    {
+        $query = Product::with(['firstImage', 'category'])
+        ->where('isDeleted', 0);
+
+        if ($request->filled('min_price')) {
+            $query->where('productSellPrice', '>=', (int)$request->min_price);
+        }
+
+        if ($request->filled('max_price')) {
+            $query->where('productSellPrice', '<=', (int)$request->max_price);
+        }
+
+        $products = $query->paginate(8); // áp dụng phân trang sau khi lọc
+
+        foreach ($products as $product) {
+            $product->average_star = $product->comments->avg('rate');
+            $product->quantityComment = $product->comments->count();
+        }
+
+        $categories = Category::where('isDeleted', false)->get();
+
+        return view('UserPage.Product', compact('products', 'categories'));
+    }
+
 }
 
 

@@ -83,10 +83,5 @@ function closeModal() {
     currentForm = null;
 }
 
-document.getElementById('confirmDelete').addEventListener('click', function () {
-    if (currentForm) {
-        currentForm.submit();
-    }
-});
 
 

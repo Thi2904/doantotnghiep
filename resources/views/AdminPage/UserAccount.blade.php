@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fashion Admin - Quản Lý Cửa Hàng</title>
+    <title>TrendyTeen Admin - Quản Lý Cửa Hàng</title>
     <link rel="stylesheet" href="{{asset('css/admin/styles.css')}}">
     <link rel="stylesheet" href="{{asset('css/admin/stylePopup.css')}}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -92,7 +92,7 @@
     <div class="header-container">
         <div class="header-left">
             <div class="logo">
-                <span class="logo-text">Fashion Admin</span>
+                <span class="logo-text">TrendyTeen Admin</span>
             </div>
         </div>
         <div class="header-right">
@@ -194,10 +194,13 @@
                                                     Đã cấm
                                                 </button>
                                             @elseif($customerAccount->isDeleted == 0)
-                                                <form action="{{ route('customer.destroy', $customerAccount->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn cấm người dùng này không ?');">
+                                                <form method="POST" class="ban-customer-form">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-ban">
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-ban ban-customer-btn"
+                                                        data-url="{{ route('customer.destroy', $customerAccount->id) }}">
                                                         Cấm
                                                     </button>
                                                 </form>
@@ -238,6 +241,48 @@
         </section>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.ban-customer-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const url = button.dataset.url;
+
+                Swal.fire({
+                    title: 'Cấm người dùng này?',
+                    text: 'Hành động này sẽ vô hiệu hóa tài khoản và không thể hoàn tác.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Xác nhận cấm',
+                    cancelButtonText: 'Hủy',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = url;
+
+                        const csrf = document.createElement('input');
+                        csrf.type = 'hidden';
+                        csrf.name = '_token';
+                        csrf.value = '{{ csrf_token() }}';
+
+                        const method = document.createElement('input');
+                        method.type = 'hidden';
+                        method.name = '_method';
+                        method.value = 'DELETE';
+
+                        form.appendChild(csrf);
+                        form.appendChild(method);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 
 <script src="{{asset('js/Admin/jsPopup.js')}}"></script>
 <script src="{{asset('js/Admin/script.js')}}"></script>

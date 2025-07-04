@@ -8,8 +8,11 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\ProductDetail;
 use App\Models\User;
+use App\Notifications\NewOrderNotification;
+use App\Notifications\OrderConfirmationForCustomer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 
 class OrdersManageController extends Controller
 {
@@ -42,7 +45,6 @@ class OrdersManageController extends Controller
             ->groupBy('staID')
             ->pluck('total', 'staID');
 
-        // Tổng tất cả đơn hàng
         $totalOrders = Order::count();
         return view('AdminPage.Orders', compact('orders','total','payments','products','statusCounts', 'totalOrders'));
     }
@@ -60,8 +62,8 @@ class OrdersManageController extends Controller
             ->first();
         if($customer != null){
             $order = new Order();
-            $order->cusID = $customer->id; // hoặc từ $request
-            $order->adminID = null; // hoặc từ $request
+            $order->cusID = $customer->id;
+            $order->adminID = null;
             $order->orderPhoneNumber = $request->phone;
             $order->shipping_street = null;
             $order->shipping_city = null;
@@ -73,12 +75,12 @@ class OrdersManageController extends Controller
             $order->save();
         }else{
             $customer = new User();
-            $customer->username = 'user_' . time(); // tạo username tạm thời, bạn có thể đổi theo ý
-            $customer->name = $request->nameCus ?? 'Khách hàng'; // tên từ request hoặc mặc định
-            $customer->email = 'user' . time() . '@example.com'; // email giả nếu không nhập
+            $customer->username = 'user_' . time();
+            $customer->name = $request->nameCus ?? 'Khách hàng';
+            $customer->email = 'user' . time() . '@example.com';
             $customer->phone = $request->phone;
             $customer->role = 'customer';
-            $customer->password = bcrypt('123456'); // mật khẩu mặc định, có thể buộc đổi sau
+            $customer->password = bcrypt('123456');
             $customer->isDeleted = 0;
             $customer->save();
 
@@ -127,30 +129,49 @@ class OrdersManageController extends Controller
     public function cancel(Request $request, $orderID)
     {
         $cusID = $request->input('cusID');
-        $order = Order::where('orderID', $orderID)->where('cusID', $cusID)->first();
+
+        $order = Order::with('orderDetails')->where('orderID', $orderID)->where('cusID', $cusID)->first();
+
+        if (!$order) {
+            return back()->with('error', "Không tìm thấy đơn hàng #$orderID của khách $cusID.");
+        }
+
+        if (!in_array($order->staID, [1, 2])) {
+            return back()->with('error', "Chỉ có thể hủy đơn hàng đang chờ xử lý hoặc đang chuẩn bị.");
+        }
+
+        foreach ($order->orderDetails as $detail) {
+            $productDetail = ProductDetail::find($detail->productDetailID);
+            if ($productDetail) {
+                $productDetail->productQuantity += $detail->orderQuantity;
+                $productDetail->save();
+            }
+        }
 
         $order->staID = 5;
         $order->save();
 
-        return back()->with('success', "Đơn hàng của khách $cusID đã bị hủy.");
+        return back()->with('success', "Đơn hàng #$orderID của khách $cusID đã được hủy và hoàn lại kho.");
     }
+
     public function getSizes($productID)
     {
-        $details = ProductDetail::where('prdID', $productID)
-            ->where('isDeleted', false)
+        $sizes = ProductDetail::where('prdID', $productID)
+            ->where('productQuantity', '>', 0)
             ->with('size')
             ->get()
-            ->unique('sizeId'); // Tránh lặp size
+            ->groupBy('sizeId')
+            ->map(function ($items) {
+                return [
+                    'sizeId' => $items->first()->sizeId,
+                    'size' => $items->first()->size->sizeName
+                ];
+            })
+            ->values();
 
-        $data = $details->map(function ($item) {
-            return [
-                'sizeId' => $item->sizeId,
-                'size' => $item->size->sizeName,
-            ];
-        });
-
-        return response()->json($data);
+        return response()->json($sizes);
     }
+
 
     public function getColors($productID, $sizeId)
     {
@@ -159,7 +180,7 @@ class OrdersManageController extends Controller
             ->where('isDeleted', false)
             ->with('color')
             ->get()
-            ->unique('colorId'); // Tránh lặp màu
+            ->unique('colorId');
 
         $data = $details->map(function ($item) {
             return [
@@ -185,7 +206,7 @@ class OrdersManageController extends Controller
     public function addMoreDetails(Request $request, $id)
     {
         $products = $request->input('products');
-        $grouped = array_chunk($products, 5); // nhóm mỗi sản phẩm gồm 5 item
+        $grouped = array_chunk($products, 5);
 
         $totalPrice = 0;
 
@@ -239,6 +260,11 @@ class OrdersManageController extends Controller
             }
             $product->save();
         }
+
+        $admin = User::where('role', 'admin')->first();
+        Notification::route('mail', $admin->email)->notify(new NewOrderNotification($order));
+
+        $order->customer->notify(new OrderConfirmationForCustomer($order));
         if ($order->payID == 2) {
             return $this->redirectToVnpay($order->totalPrice, $order->orderID);
         }
@@ -253,7 +279,7 @@ class OrdersManageController extends Controller
         $vnp_TmnCode = "NJJ0R8FS";
         $vnp_HashSecret = "BYKJBHPPZKQMKBIBGGXIYKWYFAYSJXCW";
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        $vnp_Returnurl = route('vnpay.return');
+        $vnp_Returnurl = route('vnpay.adminReturn');
 
 
         $vnp_TxnRef = $orderId . "_" . time();
@@ -261,7 +287,6 @@ class OrdersManageController extends Controller
         $vnp_OrderType = 'billpayment';
         $vnp_Amount = $amount * 100;
         $vnp_Locale = 'vn';
-        $vnp_BankCode = 'NCB';
         $vnp_IpAddr = request()->ip();
         $vnp_ExpireDate = date('YmdHis', strtotime('+15 minutes'));
 
@@ -279,9 +304,10 @@ class OrdersManageController extends Controller
             "vnp_ReturnUrl" => $vnp_Returnurl,
             "vnp_TxnRef" => $vnp_TxnRef,
             "vnp_ExpireDate" => $vnp_ExpireDate,
-            "vnp_BankCode" => $vnp_BankCode
         ];
-
+        if (isset($vnp_BankCode) && $vnp_BankCode != "") {
+            $inputData['vnp_BankCode'] = $vnp_BankCode;
+        }
         ksort($inputData);
         $query = "";
         $hashdata = "";
@@ -311,31 +337,25 @@ class OrdersManageController extends Controller
             }
 
             if ($request->vnp_ResponseCode == '00') {
-                return redirect()->route('orders.index')->with('success', 'Thanh toán thành công');
+                return redirect()->route('order-manage.index')->with('success', 'Thanh toán thành công');
 
             } else {
-                return redirect()->route('orders.index')->with('error', 'Thanh toán thất bại hoặc bị hủy');
+                return redirect()->route('order-manage.index')->with('error', 'Thanh toán thất bại hoặc bị hủy');
             }
         }
     }
     public function filterOrders(Request $request)
     {
-        $statusParam = $request->input('status', 'all'); // Mặc định là 'all'
+        $statusParam = $request->input('status', 'all');
         $searchQuery = $request->input('search');
-        $perPage = 10; // Số lượng đơn hàng trên mỗi trang
+        $perPage = 10;
 
-        // Lấy tất cả các trạng thái từ database để ánh xạ
         $statuses = Status::pluck('staID', 'statusValue')->toArray();
-        // Tạo một mảng ánh xạ ngược để tìm tên trạng thái từ staID
         $statusNames = array_flip($statuses);
 
-        // Bắt đầu query
         $query = Order::with('status', 'orderDetails.productDetail.product.firstImage');
 
-        // Áp dụng lọc theo trạng thái
         if ($statusParam !== 'all') {
-            // Chuyển đổi tên trạng thái từ frontend sang staID tương ứng
-            // Ví dụ: 'pending' -> 'Đang chờ duyệt' -> staID tương ứng
             $dbStatusValue = '';
             switch ($statusParam) {
                 case 'pending':
@@ -367,11 +387,11 @@ class OrdersManageController extends Controller
         $orders = $query->orderByDesc('created_at')->paginate($perPage);
 
         $counts = [];
-        $allOrdersCount = Order::count(); // Tổng số đơn hàng
+        $allOrdersCount = Order::count();
         $counts['all'] = $allOrdersCount;
 
         foreach ($statuses as $statusName => $staID) {
-            $countKey = $this->slugifyStatusName($statusName); // Chuyển đổi tên trạng thái sang slug
+            $countKey = $this->slugifyStatusName($statusName);
             $counts[$countKey] = Order::where('staID', $staID)->count();
         }
 

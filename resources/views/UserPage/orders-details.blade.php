@@ -207,19 +207,18 @@
         </div>
 
         <nav class="hidden md:flex space-x-8">
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Phụ kiện</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Giới thiệu</a>
+            <a href="/" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
+            <a href="/products/gender/0" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
+            <a href="/products/gender/1" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
+            <a href="/showProduct" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Sản phẩm</a>
         </nav>
 
         <div class="flex items-center space-x-4">
             <div class="flex search">
                 <div class="">
-                    <form action="">
+                    <form action="/showProduct">
                         <div class="search-box">
-                            <input placeholder="Search something" class="search_content" type="text">
+                            <input name="search" placeholder="Search something" class="search_content" type="text">
                             <button style="display: none" type="submit"></button>
                         </div>
                     </form>
@@ -256,17 +255,25 @@
                         @csrf
                         <button type="submit" class="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600 flex items-center gap-2">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                            Logout
+                            Đăng xuất
                         </button>
                     </form>
                     <button class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 flex items-center gap-2">
                         <a class="text-decoration: none; color: black" href="{{route('profile.edit')}}">
                             <i class="fa-solid fa-user"></i>
-                            Profile
+                            Trang cá nhân
+                        </a>
+                    </button>
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 flex items-center gap-2">
+                        <a class="text-decoration: none; color: black" href="{{route('orders.showOrders')}}">
+                            <i class="fas fa-shopping-bag mr-2"></i>
+                            Đơn hàng
                         </a>
                     </button>
                 </div>
             </div>
+
+
 
 
         </div>
@@ -276,7 +283,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-12">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Chi tiết đơn hàng</h1>
-        <a href="#" class="text-orange-500 hover:text-orange-600 flex items-center gap-2">
+        <a href="/order-list" class="text-orange-500 hover:text-orange-600 flex items-center gap-2">
             <i class="fas fa-arrow-left"></i>
             Quay lại đơn hàng của tôi
         </a>
@@ -440,24 +447,31 @@
                     <div class="space-y-3 text-sm">
                         @php
                             $subtotal = $order->orderDetails->sum(fn($item) => $item->orderQuantity * $item->unitPrice);
-                            $shippingFee = 30000; // Có thể lưu từ DB nếu cần
+
+                            $discountAmount = 0;
+                            if ($order->discount) {
+                                $discountAmount = $order->discount->calculateDiscount($subtotal);
+                            }
+
+                            $finalTotal = $subtotal - $discountAmount;
                         @endphp
                         <div class="flex justify-between">
                             <span>Tạm tính ({{ $order->orderDetails->sum('orderQuantity') }} sản phẩm)</span>
                             <span>{{ number_format($subtotal, 0, ',', '.') }}đ</span>
                         </div>
                         <div class="flex justify-between">
-                            <span>Phí vận chuyển</span>
-                            <span>30.000đ</span>
-                        </div>
-                        <div class="flex justify-between">
                             <span>Giảm giá</span>
-                            <span>0đ</span>
+                            <span >
+                                {{ number_format($discountAmount, 0, ',', '.') }}đ
+                            </span>
+
                         </div>
                         <hr class="border-gray-200">
                         <div class="flex justify-between font-bold text-orange-500 text-lg">
                             <span>Tổng cộng</span>
-                            <span class="text-orange-500">{{ number_format($subtotal + 30000, 0, ',', '.') }}đ</span>
+                            <span >
+                                {{ number_format($finalTotal, 0, ',', '.') }}đ
+                            </span>
                         </div>
                     </div>
 
@@ -506,7 +520,19 @@
         </div>
     </div>
 </div>
+<div id="zalo-chat-widget" class="fixed bottom-6 right-6 z-50">
+    <div style="margin-bottom: 12px" id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://zalo.me/0946871653">
+            <img src="https://img.icons8.com/?size=100&id=DrWXvmB9ORxE&format=png&color=000000" alt="">
+        </a>
+    </div>
 
+    <div id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://www.facebook.com/capybarahdt/">
+            <i class="fab fa-facebook-messenger text-2xl"></i>
+        </a>
+    </div>
+</div>
 <!-- Footer -->
 <footer class="bg-gray-900 text-white pt-12 pb-6">
     <div class="container mx-auto px-4">
@@ -567,10 +593,7 @@
         <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center">
             <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2023 TrendyTeen. All rights reserved.</p>
             <div class="flex space-x-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
+
             </div>
         </div>
     </div>

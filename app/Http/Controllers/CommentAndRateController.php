@@ -37,17 +37,20 @@ class CommentAndRateController extends Controller
         $comment = CommentAndRate::findOrFail($id);
 
         if (Auth::id() !== $comment->cusID) {
-            return response()->json(['message' => 'Bạn không có quyền cập nhật bình luận này.'], 403);
+            return back()->withErrors(['message' => 'Bạn không có quyền sửa bình luận này.']);
         }
 
         $request->validate([
-            'contentComment' => 'sometimes|required|string',
-            'rate' => 'sometimes|required|integer|min:1|max:5',
+            'contentComment' => 'required|string|max:500',
+            'rate' => 'required|integer|min:1|max:5',
         ]);
 
-        $comment->update($request->only(['contentComment', 'rate']));
+        $comment->update([
+            'contentComment' => $request->contentComment,
+            'rate' => $request->rate,
+        ]);
 
-        return response()->json($comment);
+        return back()->with('success', 'Bình luận đã được cập nhật.');
     }
 
     public function destroy($id)
@@ -55,11 +58,11 @@ class CommentAndRateController extends Controller
         $comment = CommentAndRate::findOrFail($id);
 
         if (Auth::id() !== $comment->cusID) {
-            return response()->json(['message' => 'Bạn không có quyền xoá bình luận này.'], 403);
+            return back()->withErrors(['message' => 'Bạn không có quyền xoá bình luận này.']);
         }
 
         $comment->delete();
 
-        return response()->json(['message' => 'Đã xoá bình luận.']);
+        return back()->with('success', 'Đã xoá bình luận.');
     }
 }

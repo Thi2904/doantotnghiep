@@ -37,9 +37,9 @@ class ProfileController extends Controller
             'name'    => $request->name,
             'email'   => $request->email,
             'phone'   => $request->phone,
-            'city' => $request->city_name,
-            'district' => $request->district_name,
-            'ward' => $request->ward_name,
+            'city' => $request->city,
+            'district' => $request->district,
+            'ward' => $request->ward,
             'street_address' => $request->address,
         ]);
 

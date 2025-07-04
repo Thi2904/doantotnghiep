@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fashion Admin - Quản Lý Cửa Hàng</title>
+    <title>TrendyTeen Admin - Quản Lý Cửa Hàng</title>
     <link rel="stylesheet" href="{{asset('css/admin/styles.css')}}">
     <link rel="stylesheet" href="{{asset('css/admin/stylePopup.css')}}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -48,7 +48,7 @@
     <div class="header-container">
         <div class="header-left">
             <div class="logo">
-                <span class="logo-text">Fashion Admin</span>
+                <span class="logo-text">TrendyTeen Admin</span>
             </div>
         </div>
         <div class="header-right">
@@ -187,6 +187,7 @@
                         <thead>
                         <tr>
                             <th>Mã đơn hàng</th>
+                            <th>Tên khách hàng</th>
                             <th>Số điện thoại</th>
                             <th>Tổng giá trị</th>
                             <th>Ngày tạo đơn</th>
@@ -228,11 +229,11 @@
                                     <div class="cell-product">
                                         <div style="position: relative;">
                                             <h4 style="max-width: 200px; display: inline-block;">
-                                                <a style="text-decoration: none; color: black"
+                                                <a style="  text-decoration: none; color: black"
                                                    onmouseover="this.style.color='blue';"
                                                    onmouseout="this.style.color='black';"
                                                    href="orders/{{$order->orderID}}">
-                                                    {{$order->orderID}}
+                                                    #ORD{{$order->orderID}}
                                                 </a>
                                             </h4>
                                             <button onclick="toggleDropdown('dropdown-{{$order->orderID}}')" style="border: none; background: transparent; cursor: pointer; margin-left: 5px;">
@@ -261,6 +262,7 @@
                                     </div>
                                 </td>
 
+                                <td>{{ $order->customer->name }}</td>
                                 <td>{{ preg_replace('/(\d{4})(\d{3})(\d{3})/', '$1 $2 $3', $order->orderPhoneNumber) }}</td>
                                 <td>{{number_format($order->totalPrice, 0, ',', '.')}}đ</td>
                                 <td>{{$order->created_at->format('d/m/Y H:i')}}</td>
@@ -287,13 +289,18 @@
                                                 </button>
                                             </form>
 
-                                            <form style="margin-left: 5px;margin-right: 5px" method="POST" action="{{ route('orders.cancel', $order->orderID) }}" onsubmit="return confirm('Bạn có chắc muốn hủy đơn này?')">
+                                            <form method="POST" action="{{ route('orders.cancel', $order->orderID) }}" class="cancel-order-form">
                                                 @csrf
                                                 <input type="hidden" name="cusID" value="{{ $order->cusID }}">
-                                                <button class="circle-button cancel" title="Hủy đơn">
+                                                <button type="button"
+                                                        class="circle-button cancel cancel-order-btn"
+                                                        title="Hủy đơn"
+                                                        data-url="{{ route('orders.cancel', $order->orderID) }}"
+                                                        data-cusid="{{ $order->cusID }}">
                                                     <i class="fas fa-circle-xmark"></i>
                                                 </button>
                                             </form>
+
                                         </div>
                                     @elseif($status == 'Đang chờ duyệt')
                                         <div style="display: flex" class="">
@@ -309,15 +316,18 @@
                                                 <i class="fas fa-truck-fast"></i>
                                             </button>
 
-
-
-                                            <form style="margin-left: 5px;margin-right: 5px" method="POST" action="{{ route('orders.cancel', $order->orderID) }}" onsubmit="return confirm('Bạn có chắc muốn hủy đơn này?')">
+                                            <form method="POST" action="{{ route('orders.cancel', $order->orderID) }}" class="cancel-order-form">
                                                 @csrf
                                                 <input type="hidden" name="cusID" value="{{ $order->cusID }}">
-                                                <button class="circle-button cancel" title="Hủy đơn">
+                                                <button type="button"
+                                                        class="circle-button cancel cancel-order-btn"
+                                                        title="Hủy đơn"
+                                                        data-url="{{ route('orders.cancel', $order->orderID) }}"
+                                                        data-cusid="{{ $order->cusID }}">
                                                     <i class="fas fa-circle-xmark"></i>
                                                 </button>
                                             </form>
+
                                         </div>
                                     @elseif($status == 'Đã duyệt')
                                         <div style="display: flex" class="">
@@ -337,7 +347,8 @@
                                                     <h2>Thêm mã vận đơn</h2>
                                                     <form action="{{ route('orders.deliver', $order->orderID) }}" method="POST" enctype="multipart/form-data">
                                                         @csrf
-                                                        <input type="hidden" name="cusID" value="{{ $order->cusID }}">
+                                                        <label for="cusID">Mã vận đơn</label>
+                                                        <input type="hidden" name="cusID" placeholder="Nhập mã vận đơn" value="{{ $order->cusID }}">
 
                                                         <div class="form-group">
                                                             <input type="text" name="shipping_code" required>
@@ -388,35 +399,11 @@
                                 </td>
 
 
-{{--                                <td style="text-align: left;">--}}
-{{--                                    <button class="action-btn" onclick="showActionMenu(event)">--}}
-{{--                                        <i class="fa-solid fa-ellipsis"></i>--}}
-{{--                                    </button>--}}
-
-{{--                                    <div class="dropdown-menu" id="action-dropdown">--}}
-
-{{--                                        <button class="dropdown-item" onclick="openEditForm({{ $order->orderID }})" style="border: none; background: white; width: 100% ;text-align: left">--}}
-{{--                                            <span>Chỉnh sửa</span>--}}
-{{--                                        </button>--}}
-{{--                                        <hr>--}}
-{{--                                        <form--}}
-{{--                                            action="{{ route('products.destroy', $product->productID) }}"--}}
-{{--                                            method="POST"--}}
-{{--                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');"--}}
-{{--                                            class="delete-form">--}}
-{{--                                            @csrf--}}
-{{--                                            @method('DELETE')--}}
-{{--                                            <button type="submit" class="dropdown-item"  style="border: none; background: white; width: 100% ;text-align: left" title="Delete product">--}}
-{{--                                                <span style="color: red">Xóa</span>--}}
-{{--                                            </button>--}}
-{{--                                        </form>--}}
-{{--                                    </div>--}}
-{{--                                </td>--}}
                             </tr>
 
                         @empty
                             <tr>
-                                <td colspan="5" style="text-align: center;">Không có sản phẩm nào.</td>
+                                <td colspan="7" style="text-align: center;">Không có sản phẩm nào.</td>
                             </tr>
                         @endforelse
                         </tbody>
@@ -458,6 +445,52 @@
     }
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const cancelButtons = document.querySelectorAll('.cancel-order-btn');
+
+        cancelButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const url = this.dataset.url;
+                const cusID = this.dataset.cusid;
+
+                Swal.fire({
+                    title: 'Hủy đơn hàng?',
+                    text: "Bạn có chắc chắn muốn hủy đơn này không?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Hủy đơn',
+                    cancelButtonText: 'Không',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Tạo và submit form ẩn
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = url;
+
+                        const csrf = document.createElement('input');
+                        csrf.type = 'hidden';
+                        csrf.name = '_token';
+                        csrf.value = '{{ csrf_token() }}';
+
+                        const cusIdInput = document.createElement('input');
+                        cusIdInput.type = 'hidden';
+                        cusIdInput.name = 'cusID';
+                        cusIdInput.value = cusID;
+
+                        form.appendChild(csrf);
+                        form.appendChild(cusIdInput);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 
 <script src="{{asset('js/Admin/jsPopup.js')}}"></script>
 <script src="{{asset('js/Admin/script.js')}}"></script>

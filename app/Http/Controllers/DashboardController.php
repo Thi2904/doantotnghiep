@@ -14,47 +14,84 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Lấy 5 sản phẩm bán chạy nhất (dựa vào tổng số lượng bán được)
+        $selectedMonth = request()->get('month', now()->month);
+
+        $currentDate = Carbon::now();
+        $currentMonth = $selectedMonth;
+        $lastMonth = $currentDate->copy()->subMonth()->month;
+
         $topProducts = Product::select('products.*', DB::raw('SUM(order_details.orderQuantity) as total_sold'))
             ->join('product_details', 'products.productID', '=', 'product_details.prdID')
             ->join('order_details', 'product_details.id', '=', 'order_details.productDetailID')
+            ->join('orders', 'order_details.orderID', '=', 'orders.orderID')
+            ->whereMonth('orders.created_at', $currentMonth)
+            ->whereYear('orders.created_at', $currentDate->year)
+            ->where('orders.staID', 4)
             ->groupBy('products.productID')
             ->orderByDesc('total_sold')
             ->with('firstImage')
-            ->take(5)
+            ->take(3)
             ->get();
 
-        // 2. Lấy 5 đơn hàng gần đây nhất
+
         $recentOrders = Order::with(['customer', 'status'])
             ->orderByDesc('created_at')
             ->take(5)
             ->get();
 
-        $currentMonth = Carbon::now()->month;
-        $lastMonth = Carbon::now()->subMonth()->month;
-
-        // Tổng doanh thu tháng này
         $currentRevenue = Order::whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentDate->year)
             ->where('staID', 4)
             ->sum('totalPrice');
 
-// Tổng doanh thu tháng trước (chỉ tính đơn đã giao hàng)
         $lastRevenue = Order::whereMonth('created_at', $lastMonth)
+            ->whereYear('created_at', $currentDate->year)
             ->where('staID', 4)
             ->sum('totalPrice');
 
-        // Tổng số đơn hàng tháng này
-        $currentOrders = Order::whereMonth('created_at', $currentMonth)->count();
-        $lastOrders = Order::whereMonth('created_at', $lastMonth)->count();
+        $currentOrders = Order::whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentDate->year)
+            ->count();
 
-        // Tổng số sản phẩm và sản phẩm mới tháng này
+        $lastOrders = Order::whereMonth('created_at', $lastMonth)
+            ->whereYear('created_at', $currentDate->year)
+            ->count();
+
+        // 4. Sản phẩm
         $totalProducts = Product::count();
         $newProducts = Product::whereMonth('created_at', $currentMonth)->count();
 
-        // Tổng số khách hàng và khách mới tháng này
+        // 5. Khách hàng
         $totalCustomers = User::where('role', 'customer')->count();
-        $newCustomers = User::where('role', 'customer')->whereMonth('created_at', $currentMonth)->count();
-        $lastCustomers = User::where('role', 'customer')->whereMonth('created_at', $lastMonth)->count();
+        $newCustomers = User::where('role', 'customer')
+            ->whereMonth('created_at', $currentMonth)
+            ->count();
+
+        $lastCustomers = User::where('role', 'customer')
+            ->whereMonth('created_at', $lastMonth)
+            ->count();
+
+        $revenuePerDay = Order::select(
+            DB::raw('DAY(created_at) as day'),
+            DB::raw('SUM(totalPrice) as total')
+        )
+            ->whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentDate->year)
+            ->where('staID', 4)
+            ->groupBy(DB::raw('DAY(created_at)'))
+            ->orderBy('day')
+            ->get()
+            ->keyBy('day');
+
+        $daysInMonth = $currentDate->daysInMonth;
+        $revenueLabels = [];
+        $revenueData = [];
+
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $label = str_pad($day, 2, '0', STR_PAD_LEFT);
+            $revenueLabels[] = $label;
+            $revenueData[] = $revenuePerDay[$day]->total ?? 0;
+        }
 
         return view('AdminPage.Dashboard', [
             'currentRevenue' => $currentRevenue,
@@ -70,8 +107,12 @@ class DashboardController extends Controller
             'customerChange' => $lastCustomers > 0 ? (($totalCustomers - $lastCustomers) / $lastCustomers) * 100 : 100,
 
             'topProducts' => $topProducts,
-            'recentOrders' => $recentOrders
+            'recentOrders' => $recentOrders,
+
+            'revenueLabels' => $revenueLabels,
+            'revenueData' => $revenueData,
         ]);
     }
+
 
 }

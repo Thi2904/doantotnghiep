@@ -68,7 +68,7 @@
             color: #d97706;
         }
 
-        .status-confirmed {
+        .status-approved {
             background-color: #dbeafe;
             color: #2563eb;
         }
@@ -128,19 +128,18 @@
         </div>
 
         <nav class="hidden md:flex space-x-8">
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Phụ kiện</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Giới thiệu</a>
+            <a href="/" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
+            <a href="/products/gender/0" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
+            <a href="/products/gender/1" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
+            <a href="/showProduct" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Sản phẩm</a>
         </nav>
 
         <div class="flex items-center space-x-4">
             <div class="flex search">
                 <div class="">
-                    <form action="">
+                    <form action="/showProduct">
                         <div class="search-box">
-                            <input placeholder="Search something" class="search_content" type="text">
+                            <input name="search" placeholder="Search something" class="search_content" type="text">
                             <button style="display: none" type="submit"></button>
                         </div>
                     </form>
@@ -177,13 +176,19 @@
                         @csrf
                         <button type="submit" class="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600 flex items-center gap-2">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                            Logout
+                            Đăng xuất
                         </button>
                     </form>
                     <button class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 flex items-center gap-2">
                         <a class="text-decoration: none; color: black" href="{{route('profile.edit')}}">
                             <i class="fa-solid fa-user"></i>
-                            Profile
+                            Trang cá nhân
+                        </a>
+                    </button>
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 flex items-center gap-2">
+                        <a class="text-decoration: none; color: black" href="{{route('orders.showOrders')}}">
+                            <i class="fas fa-shopping-bag mr-2"></i>
+                            Đơn hàng
                         </a>
                     </button>
                 </div>
@@ -204,6 +209,36 @@
         <p class="text-gray-600">Quản lý và theo dõi tất cả đơn hàng của bạn</p>
     </div>
 
+    <div class="mb-6">
+        <h3 class="text-lg font-semibold mb-3 text-gray-800">Lọc theo trạng thái đơn hàng</h3>
+
+        <div class="flex flex-wrap gap-3">
+            <form id="filterForm" method="GET" class="flex flex-wrap gap-3">
+                <button type="submit"
+                        class="px-4 py-2 rounded-lg border text-sm transition-all
+                    {{ request('statusID') == null ? 'bg-orange-500 text-white border-orange-500 font-semibold' : 'bg-white text-gray-700 border-gray-300 hover:bg-orange-100 hover:text-orange-600' }}"
+                        name="statusID" value="">
+                    Tất cả
+                    <span class="ml-2 bg-gray-200 text-xs text-gray-700 px-2 py-0.5 rounded-full">
+                    {{ $totalOrders }}
+                </span>
+                </button>
+
+                @foreach([1 => 'Đang chờ duyệt', 2 => 'Đã duyệt', 3 => 'Đang giao hàng', 4 => 'Đã giao', 5 => 'Đã hủy'] as $id => $label)
+                    <button type="submit"
+                            class="px-4 py-2 rounded-lg border text-sm transition-all
+                        {{ request('statusID') == (string) $id ? 'bg-orange-500 text-white border-orange-500 font-semibold' : 'bg-white text-gray-700 border-gray-300 hover:bg-orange-100 hover:text-orange-600' }}"
+                            name="statusID" value="{{ $id }}">
+                        {{ $label }}
+                        <span class="ml-2 bg-gray-200 text-xs text-gray-700 px-2 py-0.5 rounded-full">
+                        {{ $statusCounts[$id] ?? 0 }}
+                    </span>
+                    </button>
+                @endforeach
+            </form>
+        </div>
+    </div>
+
 
     <!-- Orders List -->
     <div class="space-y-6">
@@ -214,7 +249,7 @@
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
                         <div class="flex items-center gap-4 mb-2 md:mb-0">
                             <div>
-                                <h3 class="font-semibold text-lg">{{ $order['orderCode'] }}</h3>
+                                <h3 class="font-semibold text-lg">#ORD{{ $order['orderID'] }}</h3>
                                 <p class="text-sm text-gray-500">Đặt ngày: {{ $order['orderDate'] }}</p>
                             </div>
                             <span class="status-badge {{ $order['statusClass'] }}">{{ $order['status'] }}</span>
@@ -265,17 +300,23 @@
                                     </button>
                                 </form>
                             @elseif($order['status'] == 'Đang chờ duyệt' || $order['status'] == 'Đã duyệt')
-                                <form method="POST" action="{{ route('orderCus.cancel', $order['orderID']) }}" onsubmit="return confirm('Bạn có chắc muốn hủy đơn này?')">
+                                <form method="POST" action="{{ route('orderCus.cancel', $order['orderID']) }}" class="cancel-order-form">
                                     @csrf
-                                    <button class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm font-medium">
+                                    <button
+                                        type="button"
+                                        class="cancel-order-btn px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm font-medium"
+                                        data-url="{{ route('orderCus.cancel', $order['orderID']) }}">
                                         Hủy đơn hàng
                                     </button>
                                 </form>
+
                             @elseif($order['status'] == 'Đã giao hàng')
                                 <form>
                                 @csrf
                                 <button class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm font-medium">
-                                    Bình luận và đánh giá
+                                    <a href="{{ route('productDetails', ['product' => $order['product']->productID]) }}">
+                                        Bình luận và đánh giá
+                                    </a>
                                 </button>
                                 </form>
                             @endif
@@ -291,24 +332,66 @@
 
     <!-- Pagination -->
     <div class="flex justify-center items-center mt-12 space-x-2">
-        <button class="px-3 py-2 text-gray-500 hover:text-orange-500 disabled:opacity-50" disabled>
+        @php
+            $currentPage = $orders->currentPage();
+            $lastPage = $orders->lastPage();
+        @endphp
+
+        <div class="flex items-center justify-center space-x-2 mt-6">
+            {{-- Previous Page --}}
+            @if ($currentPage > 1)
+                <a href="{{ $orders->previousPageUrl() }}" class="px-3 py-2 text-gray-500 hover:text-orange-500">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            @else
+                <span class="px-3 py-2 text-gray-400 cursor-not-allowed">
             <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="px-4 py-2 bg-orange-500 text-white rounded-lg">1</button>
-        <button class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">2</button>
-        <button class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">3</button>
-        <span class="px-2 text-gray-500">...</span>
-        <button class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">10</button>
-        <button class="px-3 py-2 text-gray-500 hover:text-orange-500">
+        </span>
+            @endif
+
+            {{-- Page Numbers --}}
+            @for ($i = 1; $i <= $lastPage; $i++)
+                @if ($i == $currentPage)
+                    <span class="px-4 py-2 bg-orange-500 text-white rounded-lg">{{ $i }}</span>
+                @elseif ($i == 1 || $i == $lastPage || ($i >= $currentPage - 1 && $i <= $currentPage + 1))
+                    <a href="{{ $orders->url($i) }}" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">{{ $i }}</a>
+                @elseif ($i == $currentPage - 2 || $i == $currentPage + 2)
+                    <span class="px-2 text-gray-500">...</span>
+                @endif
+            @endfor
+
+            {{-- Next Page --}}
+            @if ($currentPage < $lastPage)
+                <a href="{{ $orders->nextPageUrl() }}" class="px-3 py-2 text-gray-500 hover:text-orange-500">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            @else
+                <span class="px-3 py-2 text-gray-400 cursor-not-allowed">
             <i class="fas fa-chevron-right"></i>
-        </button>
+        </span>
+            @endif
+        </div>
+
     </div>
 </div>
+<div id="zalo-chat-widget" class="fixed bottom-6 right-6 z-50">
+    <div style="margin-bottom: 12px" id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://zalo.me/0946871653">
+            <img src="https://img.icons8.com/?size=100&id=DrWXvmB9ORxE&format=png&color=000000" alt="">
+        </a>
+    </div>
 
+    <div id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://www.facebook.com/capybarahdt/">
+            <i class="fab fa-facebook-messenger text-2xl"></i>
+        </a>
+    </div>
+</div>
 <!-- Footer -->
-<footer class="bg-gray-900 text-white pt-12 pb-6 mt-16">
+<footer class="bg-gray-900 text-white pt-12 pb-6">
     <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+            <!-- Column 1 -->
             <div>
                 <h3 class="text-xl font-bold mb-4">TrendyTeen</h3>
                 <p class="text-gray-400 mb-4">Thương hiệu thời trang trẻ trung, năng động dành cho giới trẻ Việt Nam.</p>
@@ -320,6 +403,7 @@
                 </div>
             </div>
 
+            <!-- Column 2 -->
             <div>
                 <h3 class="text-lg font-semibold mb-4">Mua sắm</h3>
                 <ul class="space-y-2">
@@ -330,6 +414,7 @@
                 </ul>
             </div>
 
+            <!-- Column 3 -->
             <div>
                 <h3 class="text-lg font-semibold mb-4">Thông tin</h3>
                 <ul class="space-y-2">
@@ -362,14 +447,48 @@
         <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center">
             <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2023 TrendyTeen. All rights reserved.</p>
             <div class="flex space-x-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
+
             </div>
         </div>
     </div>
 </footer>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.cancel-order-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const url = button.dataset.url;
+
+                Swal.fire({
+                    title: 'Xác nhận huỷ đơn hàng?',
+                    text: "Hành động này không thể hoàn tác.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e53e3e',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Xác nhận huỷ',
+                    cancelButtonText: 'Thoát',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Tạo và submit form ẩn
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = url;
+
+                        const csrf = document.createElement('input');
+                        csrf.type = 'hidden';
+                        csrf.name = '_token';
+                        csrf.value = '{{ csrf_token() }}';
+
+                        form.appendChild(csrf);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 
 <script src="{{asset('js/Customer/Sidebar.js')}}"></script>
 <script src="{{asset('js/Customer/customerPage.js')}}"></script>

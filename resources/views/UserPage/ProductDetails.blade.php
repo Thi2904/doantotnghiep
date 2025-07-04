@@ -7,6 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{asset('css/customer/customerPage.css')}}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         tailwind.config = {
@@ -45,6 +49,33 @@
 
 </head>
 <body class="min-h-screen bg-gradient-to-r from-amber-50 to-orange-50">
+@if(session()->has('success'))
+    <script>
+        toastr.options = {
+            "progressBar": true,
+            "closeButton": true
+        }
+        toastr.success("{{ session()->get('success') }}","Thành công!", {timeOut:5000});
+    </script>
+@endif
+@if(session()->has('error'))
+    <script>
+        toastr.options = {
+            "progressBar": true,
+            "closeButton": true
+        }
+        toastr.error("{{ session()->get('error')}}","Lỗi!", {timeOut:5000});
+    </script>
+@endif
+@if(session()->has('warn'))
+    <script>
+        toastr.options = {
+            "progressBar": true,
+            "closeButton": true
+        }
+        toastr.warning("{{ session()->get('warn')}}","Thông báo!", {timeOut:5000});
+    </script>
+@endif
 <!-- Header -->
 <header class="sticky top-0 z-50 bg-white shadow-sm">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -53,19 +84,18 @@
         </div>
 
         <nav class="hidden md:flex space-x-8">
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Phụ kiện</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Giới thiệu</a>
+            <a href="/" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
+            <a href="/products/gender/0" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
+            <a href="/products/gender/1" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
+            <a href="/showProduct" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Sản phẩm</a>
         </nav>
 
         <div class="flex items-center space-x-4">
             <div class="flex search">
                 <div class="">
-                    <form action="">
+                    <form action="/showProduct">
                         <div class="search-box">
-                            <input placeholder="Search something" class="search_content" type="text">
+                            <input name="search" placeholder="Search something" class="search_content" type="text">
                             <button style="display: none" type="submit"></button>
                         </div>
                     </form>
@@ -102,13 +132,19 @@
                         @csrf
                         <button type="submit" class="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600 flex items-center gap-2">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                            Logout
+                            Đăng xuất
                         </button>
                     </form>
                     <button class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 flex items-center gap-2">
                         <a class="text-decoration: none; color: black" href="{{route('profile.edit')}}">
                             <i class="fa-solid fa-user"></i>
-                            Profile
+                            Trang cá nhân
+                        </a>
+                    </button>
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 flex items-center gap-2">
+                        <a class="text-decoration: none; color: black" href="{{route('orders.showOrders')}}">
+                            <i class="fas fa-shopping-bag mr-2"></i>
+                            Đơn hàng
                         </a>
                     </button>
                 </div>
@@ -181,15 +217,15 @@
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">{{ $product->productName }}</h1>
 
                 <!-- Ratings -->
-                <div class="flex items-center gap-1 mb-4">
-                    <div class="flex text-amber-400">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star-half-alt"></i>
-                    </div>
-{{--                    <span class="text-gray-500 ml-1">(120 đánh giá)</span>--}}
+                <div class="flex text-amber-400 mb-1">
+                    @for ($i = 0; $i < number_format($product->average_star) ; $i++)
+                        <i class="fas fa-star text-warning"></i>
+                    @endfor
+                    @for ($i = number_format($product->average_star); $i < 5; $i++)
+                        <i class="far fa-star text-muted"></i>
+                    @endfor
+                    <span class="text-gray-500 text-sm ml-2">({{$product->quantityComment}} đánh giá)</span>
+
                 </div>
 
                 <!-- Price -->
@@ -222,8 +258,9 @@
                         <div class="flex flex-wrap gap-2">
                             @php $displayedSizes = []; @endphp
                             @foreach($productDetails as $details)
-                                @if(!in_array($details->size->sizeName, $displayedSizes))
-                                    <button type="button" data-size="{{ $details->size->sizeName }}"
+                                @if($details->productQuantity > 0 && !in_array($details->size->sizeName, $displayedSizes))
+                                    <button type="button"
+                                            data-size="{{ $details->size->sizeName }}"
                                             data-prdid="{{ $details->prdID }}"
                                             data-sizeid="{{ $details->size->sizeId }}"
                                             class="size-btn w-12 h-12 flex items-center justify-center border rounded-md border-gray-300 hover:border-orange-500">
@@ -234,6 +271,7 @@
                             @endforeach
                         </div>
                     </div>
+
 
                     <!-- Color Selection -->
                     <div class="mb-6">
@@ -262,6 +300,7 @@
                     <!-- Submit Button -->
                     <div class="mb-6">
                         <button type="submit"
+                                id="addToCartBtn"
                                 class="bg-orange-500 text-white px-6 py-3 rounded-md hover:bg-orange-600 transition duration-200">
                             Thêm vào giỏ hàng
                         </button>
@@ -350,71 +389,62 @@
     </div>
     @if($hasPurchased)
         <div class="bg-white rounded-lg shadow-md p-6 mt-8">
-
             <div class="bg-white rounded-lg shadow-sm border">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-6">Viết đánh giá của bạn</h3>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-6">
+                        {{ $userComment ? 'Chỉnh sửa đánh giá của bạn' : 'Viết đánh giá của bạn' }}
+                    </h3>
 
-                    <form class="space-y-6" action="/comments" METHOD="POST">
+                    <form class="space-y-6" action="{{ $userComment ? route('comments.update', $userComment->idComment) : route('comments.store') }}" method="POST">
                         @csrf
-                        <!-- Star Rating Input -->
+                        @if($userComment)
+                            @method('PUT')
+                        @endif
+
+                        <!-- Star Rating -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-3">
                                 Đánh giá của bạn <span class="text-red-500">*</span>
                             </label>
                             <div class="flex items-center space-x-1">
-                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="1">
-                                    <i class="fa-solid fa-star"></i>
-                                </button>
-                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="2">
-                                    <i class="fa-solid fa-star"></i>
-                                </button>
-                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="3">
-                                    <i class="fa-solid fa-star"></i>
-                                </button>
-                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="4">
-                                    <i class="fa-solid fa-star"></i>
-                                </button>
-                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="5">
-                                    <i class="fa-solid fa-star"></i>
-                                </button>
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <button type="button"
+                                            class="star-btn text-2xl {{ $userComment && $userComment->rate >= $i ? 'text-yellow-400' : 'text-gray-300' }} hover:text-yellow-400 transition"
+                                            data-rating="{{ $i }}">
+                                        <i class="fa-solid fa-star"></i>
+                                    </button>
+                                @endfor
                                 <span class="ml-3 text-sm text-gray-500" id="rating-text">Chọn số sao</span>
                             </div>
-                            <input type="hidden" id="rating-value" name="rate" value="0">
+                            <input type="hidden" id="rating-value" name="rate" value="{{ $userComment->rate ?? 0 }}">
                         </div>
 
-                        <!-- Comment Input -->
+                        <!-- Nội dung đánh giá -->
                         <div>
                             <label for="review-comment" class="block text-sm font-medium text-gray-700 mb-2">
                                 Nội dung đánh giá <span class="text-red-500">*</span>
                             </label>
-                            <textarea
-                                id="review-comment"
-                                name="contentComment"
-                                rows="5"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 resize-none"
-                                placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."
-                                required
-                            ></textarea>
-                            <input type="hidden" name="productID" value="{{$product->productID}}">
+                            <textarea id="review-comment"
+                                      name="contentComment"
+                                      rows="5"
+                                      class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                      required>{{ $userComment->contentComment ?? '' }}</textarea>
+                            <input type="hidden" name="productID" value="{{ $product->productID }}">
                             <div class="mt-2 text-right">
                                 <span class="text-xs text-gray-500" id="char-count">0/500 ký tự</span>
                             </div>
                         </div>
 
-                        <!-- Submit Button -->
+                        <!-- Nút gửi -->
                         <div class="flex items-center justify-between pt-4">
                             <div class="text-sm text-gray-500">
                                 <i class="fa-solid fa-info-circle mr-1"></i>
                                 Đánh giá của bạn sẽ được kiểm duyệt trước khi hiển thị
                             </div>
-                            <button
-                                type="submit"
-                                class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-lg transition-colors duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                id="submit-review"
-                            >
+                            <button type="submit"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg transition disabled:opacity-50">
                                 <i class="fa-solid fa-paper-plane"></i>
-                                <span>Gửi đánh giá</span>
+                                <span>{{ $userComment ? 'Cập nhật đánh giá' : 'Gửi đánh giá' }}</span>
                             </button>
                         </div>
                     </form>
@@ -422,6 +452,7 @@
             </div>
         </div>
     @endif
+
 
 
 
@@ -466,7 +497,19 @@
         </div>
     </div>
 </main>
+<div id="zalo-chat-widget" class="fixed bottom-6 right-6 z-50">
+    <div style="margin-bottom: 12px" id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://zalo.me/0946871653">
+            <img src="https://img.icons8.com/?size=100&id=DrWXvmB9ORxE&format=png&color=000000" alt="">
+        </a>
+    </div>
 
+    <div id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://www.facebook.com/capybarahdt/">
+            <i class="fab fa-facebook-messenger text-2xl"></i>
+        </a>
+    </div>
+</div>
 <!-- Footer -->
 <footer class="bg-gray-900 text-white pt-12 pb-6">
     <div class="container mx-auto px-4">
@@ -527,14 +570,32 @@
         <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center">
             <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2023 TrendyTeen. All rights reserved.</p>
             <div class="flex space-x-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
-                <img src="https://via.placeholder.com/40x25" alt="Payment method" class="h-6">
+
             </div>
         </div>
     </div>
 </footer>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('add-to-cart-form');
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        const selectedSize = document.getElementById('selectedSize');
+        const selectedColor = document.getElementById('selectedColor');
+
+        form.addEventListener('submit', function (e) {
+            if (!selectedSize.value || !selectedColor.value) {
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thiếu thông tin',
+                    text: 'Vui lòng chọn kích thước và màu cho sản phẩm.',
+                    confirmButtonColor: '#f97316', // orange
+                });
+            }
+        });
+    });
+</script>
 
 <script>
     const productImages = @json($product->images->pluck('imageLink')->map(fn($img) => asset('storage/' . $img)));

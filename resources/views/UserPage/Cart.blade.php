@@ -84,19 +84,18 @@
         </div>
 
         <nav class="hidden md:flex space-x-8">
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Phụ kiện</a>
-            <a href="#" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Giới thiệu</a>
+            <a href="/" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Trang chủ</a>
+            <a href="/products/gender/0" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nam</a>
+            <a href="/products/gender/1" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Nữ</a>
+            <a href="/showProduct" class="nav-link text-gray-700 hover:text-orange-500 font-medium">Sản phẩm</a>
         </nav>
 
         <div class="flex items-center space-x-4">
             <div class="flex search">
                 <div class="">
-                    <form action="">
+                    <form action="/showProduct">
                         <div class="search-box">
-                            <input placeholder="Search something" class="search_content" type="text">
+                            <input name="search" placeholder="Search something" class="search_content" type="text">
                             <button style="display: none" type="submit"></button>
                         </div>
                     </form>
@@ -133,13 +132,19 @@
                         @csrf
                         <button type="submit" class="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600 flex items-center gap-2">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                            Logout
+                            Đăng xuất
                         </button>
                     </form>
                     <button class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 flex items-center gap-2">
                         <a class="text-decoration: none; color: black" href="{{route('profile.edit')}}">
                             <i class="fa-solid fa-user"></i>
-                            Profile
+                            Trang cá nhân
+                        </a>
+                    </button>
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 flex items-center gap-2">
+                        <a class="text-decoration: none; color: black" href="{{route('orders.showOrders')}}">
+                            <i class="fas fa-shopping-bag mr-2"></i>
+                            Đơn hàng
                         </a>
                     </button>
                 </div>
@@ -163,7 +168,6 @@
     <h1 class="text-3xl font-bold mb-8 text-gray-800">Giỏ hàng của bạn</h1>
 
     <div class="flex flex-col lg:flex-row gap-8">
-        <!-- Cart Items -->
         <div class="w-full lg:w-2/3">
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <div class="p-6">
@@ -178,11 +182,10 @@
                     <!-- Cart Item 1 -->
                     @foreach($cartDetails as $detail)
                         @php
-
-                                $product = $detail->product;
-                                $image = $product->firstImage?->imageLink ?? 'default.jpg';
-                                $size = $detail->productDetail?->size?->sizeName ?? 'N/A';
-                                $color = $detail->productDetail?->color?->colorName ?? 'N/A';
+                            $product = $detail->productDetail?->product;
+                            $image = $product?->firstImage?->imageLink ?? 'default.jpg';
+                            $size = $detail->productDetail?->size?->sizeName ?? 'N/A';
+                            $color = $detail->productDetail?->color?->colorName ?? 'N/A';
                         @endphp
                         <div class="flex flex-col md:flex-row items-center py-4 border-b">
                             <div class="w-full md:w-2/5 flex items-center mb-4 md:mb-0">
@@ -221,11 +224,52 @@
                                     onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm ra khỏi giỏ hàng không?');"
                                     class="delete-form">
                                     @csrf
-                                    <button class="bg-gray-200 hover:bg-red-100 hover:text-red-600 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center text-sm transition-colors duration-200 delete-item" data-item="{{ $detail->id }}">
+                                    <button
+                                        type="button"
+                                        class="bg-gray-200 hover:bg-red-100 hover:text-red-600 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center text-sm transition-colors duration-200 delete-item"
+                                        data-url="{{ route('cart.remove', $detail->id) }}">
                                         &times;
                                     </button>
+
                                 </form>
                             </div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', () => {
+                                    document.querySelectorAll('.delete-item').forEach(button => {
+                                        button.addEventListener('click', () => {
+                                            const formUrl = button.dataset.url;
+
+                                            Swal.fire({
+                                                title: 'Bạn có chắc chắn?',
+                                                text: "Sản phẩm sẽ bị xoá khỏi giỏ hàng!",
+                                                icon: 'warning',
+                                                showCancelButton: true,
+                                                confirmButtonColor: '#d33',
+                                                cancelButtonColor: '#3085d6',
+                                                confirmButtonText: 'Xoá',
+                                                cancelButtonText: 'Huỷ',
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    // Tạo và submit form ẩn
+                                                    const form = document.createElement('form');
+                                                    form.method = 'POST';
+                                                    form.action = formUrl;
+
+                                                    const csrf = document.createElement('input');
+                                                    csrf.type = 'hidden';
+                                                    csrf.name = '_token';
+                                                    csrf.value = '{{ csrf_token() }}';
+
+                                                    form.appendChild(csrf);
+                                                    document.body.appendChild(form);
+                                                    form.submit();
+                                                }
+                                            });
+                                        });
+                                    });
+                                });
+                            </script>
+
                         </div>
 
 
@@ -252,11 +296,7 @@
                     <div class="space-y-4">
                         <div class="flex justify-between pb-4 border-b">
                             <span class="text-gray-600">Tạm tính</span>
-                            <span class="text-gray-800 font-medium" id="subtotal">{{ number_format($total - $shippingFee, 0, ',', '.') }}đ</span>
-                        </div>
-                        <div class="flex justify-between pb-4 border-b">
-                            <span class="text-gray-600">Phí vận chuyển</span>
-                            <span class="text-gray-800 font-medium" id="shipping">30.000đ</span>
+                            <span class="text-gray-800 font-medium" id="subtotal">{{ number_format($total, 0, ',', '.') }}đ</span>
                         </div>
                         <div class="flex justify-between pb-4 border-b">
                             <span class="text-gray-600">Giảm giá</span>
@@ -315,7 +355,19 @@
         </div>
     </div>
 </main>
+<div id="zalo-chat-widget" class="fixed bottom-6 right-6 z-50">
+    <div style="margin-bottom: 12px" id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://zalo.me/0946871653">
+            <img src="https://img.icons8.com/?size=100&id=DrWXvmB9ORxE&format=png&color=000000" alt="">
+        </a>
+    </div>
 
+    <div id="chat-button" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110">
+        <a href="https://www.facebook.com/capybarahdt/">
+            <i class="fab fa-facebook-messenger text-2xl"></i>
+        </a>
+    </div>
+</div>
 <!-- Footer -->
 <footer class="bg-gray-900 text-white pt-12 pb-6">
     <div class="container mx-auto px-4">
@@ -381,6 +433,7 @@
         </div>
     </div>
 </footer>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- JavaScript -->
 <script>
@@ -413,7 +466,7 @@
                 .then(data => {
                     if (data.discount !== undefined) {
                         const discount = Math.round(data.discount);
-                        const newTotal = subtotal + 30000 - discount;
+                        const newTotal = subtotal - discount;
 
                         discountElement.textContent = discount.toLocaleString('vi-VN') + 'đ';
                         totalElement.textContent = newTotal.toLocaleString('vi-VN') + 'đ';
@@ -458,9 +511,8 @@
 
         document.getElementById('subtotal').textContent = formatPrice(subtotal);
 
-        const shipping = parsePrice(document.getElementById('shipping').textContent);
-        const discount = parsePrice(document.getElementById('discount').textContent);
-        const total = subtotal + shipping - discount;
+            const discount = parsePrice(document.getElementById('discount').textContent);
+        const total = subtotal - discount;
 
         document.getElementById('total').textContent = formatPrice(total);
     }

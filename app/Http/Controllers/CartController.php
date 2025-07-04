@@ -29,7 +29,7 @@ class CartController extends Controller
         $subtotal = 0;
 
         foreach ($cartDetails as $detail) {
-            $price = $detail->product->productSellPrice ?? 0;
+            $price = $detail->productDetail->product->productSellPrice ?? 0;
             $quantity = $detail->quantity;
             $subtotal += $price * $quantity;
         }
@@ -44,10 +44,9 @@ class CartController extends Controller
             $finalPrice = $subtotal;
         }
 
-        $shippingFee = 30000;
-        $total = $finalPrice + $shippingFee ;
+        $total = $finalPrice ;
 
-        return view('UserPage.Cart', compact('cartDetails','total','shippingFee','programs','discountAmount'));
+        return view('UserPage.Cart', compact('cartDetails','subtotal','total','programs','discountAmount'));
     }
 
 
@@ -67,7 +66,6 @@ class CartController extends Controller
         $cart = Cart::firstOrCreate(['userID' => $user->id]);
 
         $cartDetail = CartDetail::where('cartID', $cart->cartID)
-            ->where('productID', $request->productID)
             ->where('productDetailID', $productDetailId)
             ->first();
 
@@ -77,7 +75,6 @@ class CartController extends Controller
         } else {
             CartDetail::create([
                 'cartID' => $cart->cartID,
-                'productID' => $request->productID,
                 'productDetailID' => $productDetailId,
                 'quantity' => $request->quantity,
             ]);
@@ -108,7 +105,7 @@ class CartController extends Controller
             return response()->json(['error' => 'Chương trình không hợp lệ hoặc đã hết hạn'], 400);
         }
 
-        $originalPrice = request()->query('total'); // tổng đơn trước giảm giá
+        $originalPrice = request()->query('total');
 
         $discount = $program->calculateDiscount($originalPrice);
 

@@ -1256,3 +1256,36 @@ input:checked + .slider:before {
     background: var(--secondary-color);
     color: var(--text-muted);
 }
+.month-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #fff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    width: fit-content;
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.month-form label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.month-form select {
+    padding: 6px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+}
+
+.month-form select:focus {
+    border-color: #007bff;
+    outline: none;
+    background-color: #fff;
+}

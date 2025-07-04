@@ -22,7 +22,7 @@ class ProductDetailController extends Controller
         $query = ProductDetail::with(['product', 'size', 'color'])
             ->where('isDeleted', false)
             ->where('prdID', $product->productID);
-        $productDetails = $query->paginate(4);
+        $productDetails = $query->paginate(10);
         $sizes = Size::where('isDeleted', false)->get();
         $colors = Color::where('isDeleted', false)->get();
 
